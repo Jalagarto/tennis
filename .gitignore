@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# Jupyter Notebook
+*.ipynb_checkpoints
+
+# excel files:
+*.xlsx
+
 # Distribution / packaging
 .Python
 build/
