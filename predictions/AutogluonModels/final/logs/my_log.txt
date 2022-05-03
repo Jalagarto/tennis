@@ -1,0 +1,99 @@
+AutoGluon training complete, total runtime = 1071.71s ... Best model: "WeightedEnsemble_L3"
+TabularPredictor saved. To load, use: predictor = TabularPredictor.load("AutogluonModels/ag-20220501_221923/")
+
+:leaderboard
+/home/javier/python_venvs/tennis/lib/python3.8/site-packages/xgboost/compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import MultiIndex, Int64Index
+                      model  score_test  score_val  pred_time_test  ...  fit_time_marginal  stack_level  can_infer  fit_order
+0         LightGBMXT_BAG_L2    0.891591   0.886144       10.214219  ...          17.960424            2       True         15
+1     ExtraTreesGini_BAG_L2    0.891591   0.885244       10.292625  ...           5.294720            2       True         20
+2            XGBoost_BAG_L1    0.890735   0.885330        0.131679  ...          21.404565            1       True         11
+3   RandomForestEntr_BAG_L2    0.890735   0.886572       10.241449  ...          12.017210            2       True         18
+4     ExtraTreesEntr_BAG_L2    0.890735   0.885587       10.289732  ...           4.762308            2       True         21
+5           CatBoost_BAG_L2    0.890563   0.886015       10.189609  ...          70.749138            2       True         19
+6    NeuralNetFastAI_BAG_L2    0.890563   0.886187       10.744188  ...         177.565109            2       True         22
+7           LightGBM_BAG_L2    0.890392   0.886229       10.198566  ...          18.091974            2       True         16
+8   RandomForestGini_BAG_L2    0.890392   0.886401       10.242082  ...          11.253134            2       True         17
+9            XGBoost_BAG_L2    0.890392   0.886401       10.307108  ...          24.282276            2       True         23
+10          LightGBM_BAG_L1    0.890221   0.885844        0.064983  ...          11.925509            1       True          4
+11      WeightedEnsemble_L2    0.890221   0.885887        0.177063  ...          11.693183            2       True         14
+12     LightGBMLarge_BAG_L1    0.890050   0.884773        0.528323  ...          30.410314            1       True         13
+13     LightGBMLarge_BAG_L2    0.889878   0.887043       10.259492  ...          12.876317            2       True         25
+14      WeightedEnsemble_L3    0.889878   0.887043       10.260886  ...           5.543480            3       True         26
+15    NeuralNetTorch_BAG_L2    0.889878   0.884945       10.720819  ...          79.483925            2       True         24
+16   NeuralNetFastAI_BAG_L1    0.889707   0.884816        1.071245  ...         175.675221            1       True         10
+17          CatBoost_BAG_L1    0.889365   0.885073        0.251089  ...          67.239163            1       True          7
+18        LightGBMXT_BAG_L1    0.889193   0.882975        0.147263  ...           6.997958            1       True          3
+19    NeuralNetTorch_BAG_L1    0.887995   0.883403        0.408620  ...         213.054188            1       True         12
+20  RandomForestGini_BAG_L1    0.887823   0.881134        0.110284  ...           8.741152            1       True          5
+21  RandomForestEntr_BAG_L1    0.887481   0.882033        0.141033  ...           8.909405            1       True          6
+22    ExtraTreesEntr_BAG_L1    0.887138   0.881819        0.212000  ...           3.706563            1       True          9
+23    ExtraTreesGini_BAG_L1    0.886624   0.881776        0.251683  ...           3.781058            1       True          8
+24    KNeighborsDist_BAG_L1    0.748245   0.746639        3.267238  ...           0.020750            1       True          2
+25    KNeighborsUnif_BAG_L1    0.747731   0.746425        3.554198  ...           0.017486            1       True          1
+
+[26 rows x 12 columns]
+
+:feature_importance
+Computing feature importance via permutation shuffling for 29 features using 1000 rows with 3 shuffle sets...
+	239.58s	= Expected runtime (79.86s per shuffle set)
+	122.79s	= Actual runtime (Completed 3 of 3 shuffle sets)
+                                          importance    stddev   p_value  n  p99_high   p99_low
+shotCount                                   0.161000  0.017692  0.002000  3  0.262376  0.059624
+serve_class                                 0.112333  0.008145  0.000874  3  0.159002  0.065664
+1º o 2º saque                               0.026667  0.010116  0.022386  3  0.084632 -0.031299
+gameNumber                                  0.005000  0.002646  0.041007  3  0.020160 -0.010160
+Lado(1:Iguales;0:Ventaja)                   0.002667  0.000577  0.007634  3  0.005975 -0.000642
+PostVx                                      0.001000  0.001000  0.112702  3  0.006730 -0.004730
+pointNumber                                 0.001000  0.001000  0.112702  3  0.006730 -0.004730
+Z1 (h)                                      0.001000  0.001000  0.112702  3  0.006730 -0.004730
+V (m/s)                                     0.000667  0.001528  0.264298  3  0.009420 -0.008086
+PreVz                                       0.000667  0.000577  0.091752  3  0.003975 -0.002642
+timeHIT                                     0.000667  0.000577  0.091752  3  0.003975 -0.002642
+timeBounce                                  0.000333  0.001528  0.370901  3  0.009086 -0.008420
+PreVy                                       0.000333  0.000577  0.211325  3  0.003642 -0.002975
+Sexo                                        0.000333  0.000577  0.211325  3  0.003642 -0.002975
+PreVx                                       0.000333  0.001528  0.370901  3  0.009086 -0.008420
+DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0.000333  0.000577  0.211325  3  0.003642 -0.002975
+PostV                                       0.000333  0.001528  0.370901  3  0.009086 -0.008420
+TimeB-TimeH                                 0.000333  0.002082  0.403775  3  0.012262 -0.011595
+PreV                                        0.000000  0.000000  0.500000  3  0.000000  0.000000
+PostVy                                      0.000000  0.001000  0.500000  3  0.005730 -0.005730
+Y1(ABS)                                     0.000000  0.001000  0.500000  3  0.005730 -0.005730
+timeNET                                     0.000000  0.000000  0.500000  3  0.000000  0.000000
+serveNumber                                 0.000000  0.000000  0.500000  3  0.000000  0.000000
+Dif. V1-V2                                  0.000000  0.001000  0.500000  3  0.005730 -0.005730
+Y1                                         -0.000333  0.000577  0.788675  3  0.002975 -0.003642
+TimeN-TimeH                                -0.000667  0.000577  0.908248  3  0.002642 -0.003975
+setNumber                                  -0.000667  0.000577  0.908248  3  0.002642 -0.003975
+PostVz                                     -0.001000  0.001000  0.887298  3  0.004730 -0.006730
+X1                                         -0.001333  0.001155  0.908248  3  0.005283 -0.007950
+
+Evaluation:
+Evaluation: accuracy on test data: 0.8898784038362734
+Evaluations on test data:
+{
+    "accuracy": 0.8898784038362734,
+    "balanced_accuracy": 0.8320372672900922,
+    "mcc": 0.7231954468503424,
+    "roc_auc": 0.9196540453398893,
+    "f1": 0.7847338466688986,
+    "precision": 0.9008455034588778,
+    "recall": 0.6951364175563464
+}
+{'accuracy': 0.8898784038362734, 'balanced_accuracy': 0.8320372672900922, 'mcc': 0.7231954468503424, 'roc_auc': 0.9196540453398893, 'f1': 0.7847338466688986, 'precision': 0.9008455034588778, 'recall': 0.6951364175563464}
+
+Evaluation_with sklearn:
+              precision    recall  f1-score   support
+
+           0       0.89      0.97      0.93      4153
+           1       0.90      0.70      0.78      1686
+
+    accuracy                           0.89      5839
+   macro avg       0.89      0.83      0.86      5839
+weighted avg       0.89      0.89      0.89      5839
+
+
+the model has been saved
+bye
+
