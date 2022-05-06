@@ -13,7 +13,7 @@ predictor.leaderboard()
 test_data = pd.read_csv('test_data_gluon.csv')
 
 print("\nEvaluation_with sklearn:")
-y_pred = predictor.predict(test_data, model='LightGBM_BAG_L1')
+y_pred = predictor.predict(test_data, model='NeuralNetTorch_DSTL')  # 'LightGBM_BAG_L1')
 print(classification_report(test_data.Efectividad.values, y_pred))
 
 print(f"\n\n feature_importance: ")
