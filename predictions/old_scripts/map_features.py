@@ -7,6 +7,9 @@ finally let's map features:
 	but this time we get a mesh of values
 
 	3. make the app for them to play
+
+We didn't manage to get the app to work. Instead of it we built a widget with
+jupyter
 """
 
 from autogluon.tabular import TabularDataset, TabularPredictor

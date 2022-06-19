@@ -1,3 +1,7 @@
+"""
+plots all results .... not sure it works
+"""
+
 import ipywidgets as widgets
 from ipywidgets import interactive
  
