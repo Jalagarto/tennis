@@ -2,7 +2,7 @@ from autogluon.tabular import TabularDataset, TabularPredictor
 import pandas as pd
 from sklearn.metrics import classification_report
 
-predictor = TabularPredictor.load('final')
+predictor = TabularPredictor.load('final', require_version_match=False)
 
 print(f"\n\n training report: ")
 predictor.fit_summary()
