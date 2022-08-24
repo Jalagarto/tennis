@@ -2,7 +2,7 @@ from autogluon.tabular import TabularDataset, TabularPredictor
 import pandas as pd
 from sklearn.metrics import classification_report
 
-predictor = TabularPredictor.load('final')
+predictor = TabularPredictor.load('final', require_version_match=False)
 
 print(f"\n\n training report: ")
 predictor.fit_summary()
@@ -10,7 +10,7 @@ predictor.fit_summary()
 print(f"\n\n validation leaderboard: ")
 predictor.leaderboard()
 
-test_data = pd.read_csv('../test_data_gluon.csv')
+test_data = pd.read_csv('test_data_gluon.csv')
 
 print("\nEvaluation_with sklearn:")
 y_pred = predictor.predict(test_data, model='NeuralNetTorch_DSTL')  # 'LightGBM_BAG_L1')
