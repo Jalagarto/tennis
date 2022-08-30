@@ -1,5 +1,5 @@
 """
-copie of auto_gluon_raw.py
+copy of auto_gluon_raw.py
 1. split data,
 2. train model, 
 3. summarize results and calculate feature importance
