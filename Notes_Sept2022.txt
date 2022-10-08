@@ -1,0 +1,18 @@
+
+#########################################################################
+Hombres y un lado
+* Hacer modelos diferentes con los cuadros!  Derecha e Izquierda. Lado (0,1)
+
+Hombre y Primero y segundo
+* Hacer modelos diferentes con primeros y segundos (primero y segundo)
+
+#########################################################################
+
+
+
+
+
+
+
+
+

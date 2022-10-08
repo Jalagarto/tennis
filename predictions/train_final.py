@@ -19,6 +19,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 def main(DS, eval_metric='balanced_accuracy', presets='best_quality'):
     ### Load dataset
+    print('Dataset Name: ', DS, '\n')
     DS_short = DS
     DS = f'./final_ds/{DS}.csv'
 
@@ -73,5 +74,5 @@ def main(DS, eval_metric='balanced_accuracy', presets='best_quality'):
 
 if __name__=='__main__':
     # eval_metric = 'input('"choose between: [‘accuracy’, ‘balanced_accuracy’, ‘f1’, ‘f1_weighted’, etc']: ") or 'accuracy'    
-    DS, eval_metric, presets = 'df_1', 'f1_weighted', 'interpretable'    # "interpretable") # "best_quality")
+    DS, eval_metric, presets = 'df_3', 'recall_weighted', 'interpretable'    # "interpretable") # "best_quality")
     main(DS, eval_metric, presets)   # eval_metric, presets are optional
