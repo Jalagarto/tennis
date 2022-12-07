@@ -269,3 +269,135 @@ FINAL SUMMARY --> df_3:
 
 ####################################################################################
 
+
+
+ds 1 VS 4 - aUTOGLUON
+											importance    stddev   p_value  n  p99_high   p99_low
+&(grados)                                   0.089272  0.006324  0.000003  5  0.102294  0.076249
+TIME                                        0.051126  0.009938  0.000163  5  0.071589  0.030663
+dLinea                                      0.039205  0.006184  0.000072  5  0.051939  0.026472
+ANG. IN                                     0.026490  0.007666  0.000755  5  0.042275  0.010705
+difV                                        0.020662  0.004645  0.000287  5  0.030227  0.011098
+ZA                                          0.019603  0.006780  0.001474  5  0.033562  0.005643
+DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0.009801  0.003049  0.000993  5  0.016080  0.003523
+Znet                                        0.009801  0.004251  0.003359  5  0.018554  0.001049
+[YA]                                        0.002119  0.005181  0.206060  5  0.012787 -0.008548
+V(km/h)                                     0.001060  0.003675  0.277129  5  0.008627 -0.006508
+
+
+Computing feature importance via permutation shuffling for 10 features using 755 rows with 5 shuffle sets...
+	12.9s	= Expected runtime (2.58s per shuffle set)
+	5.32s	= Actual runtime (Completed 5 of 5 shuffle sets)
+                                          importance    stddev   p_value  n  p99_high   p99_low
+&(grados)                                   0.100662  0.007892  0.000004  5  0.116911  0.084413
+TIME                                        0.059868  0.009051  0.000061  5  0.078504  0.041231
+dLinea                                      0.038940  0.010285  0.000533  5  0.060118  0.017763
+ANG. IN                                     0.026225  0.006380  0.000389  5  0.039361  0.013089
+ZA                                          0.021987  0.006529  0.000833  5  0.035430  0.008543
+difV                                        0.017483  0.003428  0.000169  5  0.024543  0.010424
+Znet                                        0.014834  0.006780  0.004043  5  0.028794  0.000875
+DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0.013775  0.005894  0.003200  5  0.025910  0.001640
+V(km/h)                                     0.012450  0.004039  0.001162  5  0.020767  0.004134
+[YA]                                        0.007152  0.002009  0.000674  5  0.011288  0.003016
+
+Evaluation_with sklearn. Model: WeightedEnsemble_L2
+              precision    recall  f1-score   support
+
+           1       0.78      0.74      0.76       149
+           4       0.94      0.95      0.94       606
+
+    accuracy                           0.91       755
+   macro avg       0.86      0.85      0.85       755
+weighted avg       0.91      0.91      0.91       755
+
+
+
+
+
+############################################################################
+
+
+
+
+
+ds 1 VS 4 - FASTAI
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  TIME                                        0.147858
+ 1  &(grados)                                   0.109166
+ 2  ANG. IN                                     0.0483648
+ 3  Znet                                        0.0400737
+ 4  dLinea                                      0.0350069
+ 5  difV                                        0.0317826
+ 6  ZA                                          0.0313219
+ 7  V(km/h)                                     0.0308614
+ 8  [YA]                                        0.00460619
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0.00138188
+
+
+
+### Classification Report: ###
+              precision    recall  f1-score   support
+
+           1       0.81      0.72      0.77       212
+           4       0.93      0.96      0.94       818
+
+    accuracy                           0.91      1030
+   macro avg       0.87      0.84      0.85      1030
+weighted avg       0.91      0.91      0.91      1030
+
+### Confusion Matrix: ###
+ [[153  59]
+ [ 35 783]]
+
+
+ Calculating feature importance over split: 0
+Getting base error
+Calculating Permutation Importance
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:01<00:00]
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  &(grados)                                   0.126316
+ 1  TIME                                        0.111213
+ 2  ANG. IN                                     0.0617849
+ 3  Znet                                        0.0553776
+ 4  ZA                                          0.0480549
+ 5  dLinea                                      0.0370709
+ 6  difV                                        0.0247139
+ 7  V(km/h)                                     0.0183066
+ 8  [YA]                                        0.00823794
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T   -0.0018307
+
+ Results dicto: OrderedDict([('&(grados)', 0.12631575564885517), ('TIME', 0.11121277274694039), ('ANG. IN', 0.06178488832135581), ('Znet', 0.05537758211410414), ('ZA', 0.048
+05492771188789), ('dLinea', 0.03707094610856352), ('difV', 0.02471394221279229), ('V(km/h)', 0.018306636005540618), ('[YA]', 0.008237937018430645), ('DIRECCIÓN:1 abierto;2 a
+l cuerpo;3 a la T', -0.00183069638992915)])
+lenght of the splits: 2404
+
+
+
+ Calculating feature importance over split: 1
+Getting base error
+Calculating Permutation Importance
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:00<00:00]
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  &(grados)                                   0.146367
+ 1  TIME                                        0.117521
+ 2  ANG. IN                                     0.0779914
+ 3  Znet                                        0.0555556
+ 4  ZA                                          0.0491453
+ 5  difV                                        0.0309829
+ 6  dLinea                                      0.0277777
+ 7  V(km/h)                                     0.0224358
+ 8  [YA]                                        0.00747857
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0
+
+ Results dicto: OrderedDict([('&(grados)', 0.14636748527868554), ('TIME', 0.11752133710863985), ('ANG. IN', 0.07799140120572545), ('Znet', 0.05555555191163427), ('ZA', 0.049
+14525303567977), ('difV', 0.03098289259850279), ('dLinea', 0.02777774316052554), ('V(km/h)', 0.022435849294091186), ('[YA]', 0.007478572704308272), ('DIRECCIÓN:1 abierto;2 a
+l cuerpo;3 a la T', 0.0)])
+lenght of the splits: 1030
+
+
