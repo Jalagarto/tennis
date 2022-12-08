@@ -86,7 +86,7 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
     
     ###
     # lr = 9e-3
-    lr = learn.lr_find().valley
+    lr = learn.lr_find(show_plot=False).valley
     learn.lr = lr/5
     print("\n\nCalculated Lrt: ", lr, "using: ", learn.lr, "\n")
     learn.fit_one_cycle(1, slice(lr/(2.6**4),lr))#, moms=(0.8,0.7))
@@ -127,7 +127,7 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
 ### FEATURE IMPORTANCE:
 class PermutationImportance():
     "Calculate and plot the permutation importance"
-    def __init__(self, learn:Learner, df=None, bs=None):
+    def __init__(self, learn:Learner, df=None, split_n=0, bs=None, title='datasets'):
         "Initialize with a test dataframe, a learner, and a metric"
         self.learn = learn
         self.df = df
@@ -141,7 +141,7 @@ class PermutationImportance():
         self.y = learn.dls.y_names
         self.results = self.calc_feat_importance()
         self.results_df = self.ord_dic_to_df(self.results)
-        # self.plot_importance(self.results_df)     ### disabled for the moment, since we store it as a dicto
+        self.plot_importance(self.results_df, title, split_n)     ### disabled for the moment, since we store it as a dicto
     
     def measure_col(self, name:str):
         "Measures change after column shuffle"
@@ -170,22 +170,31 @@ class PermutationImportance():
     def ord_dic_to_df(self, dict:OrderedDict):
         return pd.DataFrame([[k, v] for k, v in dict.items()], columns=['feature', 'importance'])
     
-    def plot_importance(self, df:pd.DataFrame, limit=20, asc=False, **kwargs):
+    def plot_importance(self, df:pd.DataFrame, title, split_n, limit=20, asc=False, **kwargs):
         "Plot importance with an optional limit to how many variables shown"
         df_copy = df.copy()
         df_copy['feature'] = df_copy['feature'].str.slice(0,25)
-        df_copy = df_copy.sort_values(by='importance', ascending=asc)[:limit].sort_values(by='importance', ascending=not(asc))
+        df_copy = df_copy.sort_values(by='importance', ascending=asc)[:limit].sort_values(by='importance', 
+                                                                                        ascending=not(asc))
         ax = df_copy.plot.barh(x='feature', y='importance', sort_columns=True, **kwargs)
         for p in ax.patches:
             ax.annotate(f'{p.get_width():.4f}', ((p.get_width() * 1.005), p.get_y()  * 1.005))
+        plt.xlabel('importance of each feature')
+        splits_names = {0:'train', 1:'test'}
+        plt.title(f"feature permutation importance  -  {title} - {splits_names[split_n]}")
+        ax.get_legend().remove()
+        # plt.show()
+        plt.savefig(f"/home/javier/results_tennis2/{title}_{splits_names[split_n]}.png")
 
 
 
-def main(df, hyperp, store_dir, split:list=[0]):
+def main(df, hyperp, store_dir, split:list=[0], title='subsets df1 - df2'):
     """
     split has to be 0 or 1 values, where 0 means to calculate feat importance on training data,
         and 1 on Test Data
     """
+    print("split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...")
+    print("...and 1 on Test Data")
     print(f"{'#'*50}")
     print(f"creating new dir: {store_dir}")
     os.makedirs(store_dir, exist_ok=True)
@@ -201,7 +210,7 @@ def main(df, hyperp, store_dir, split:list=[0]):
     Feature_importance = {}
     for i in split:
         print(f"\n\n Calculating feature importance over split: {i}")
-        res = PermutationImportance(learn, df.iloc[splits[i]], bs=64)
+        res = PermutationImportance(learn, df.iloc[splits[i]], split_n=i, bs=64, title=title)
         print('\n')
         print(tabulate(res.results_df, headers=res.results_df.columns))
         print(f"\n Results dicto: {res.results}")
@@ -216,10 +225,6 @@ def main(df, hyperp, store_dir, split:list=[0]):
 
         
 
-
-
-
-
 if __name__=='__main__':
 
     class hyperp:
@@ -228,22 +233,22 @@ if __name__=='__main__':
     root_dir = '/home/javier/mis_proyectos/tennis_results/try2'
 
     ### 1. Entrenar con 1_2_3 vs 4.
-    main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1])
+    main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
 
     ### 2. Entrenar 2 vs 3_4
-    main(df_2_vs_3_4, hyperp, join(root_dir, 'df_2_vs_3_4'), split=[0, 1])
+    main(df_2_vs_3_4, hyperp, join(root_dir, 'df_2_vs_3_4'), split=[0, 1], title='df_2_vs_3_4')
 
     ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
-    main(df_1_4, hyperp, join(root_dir, 'df_1_4'), split=[0, 1])
-    main(df_2_4, hyperp, join(root_dir, 'df_2_4'), split=[0, 1])
-    main(df_3_4, hyperp, join(root_dir, 'df_3_4'), split=[0, 1])
+    main(df_1_4, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], title='df_1_4')
+    main(df_2_4, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
+    main(df_3_4, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
 
     ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4   ...   # df_1_4  already done above
-    main(df_1_2, hyperp, join(root_dir, 'df_1_2'), split=[0, 1])
-    main(df_1_3, hyperp, join(root_dir, 'df_1_3'), split=[0, 1])
+    main(df_1_2, hyperp, join(root_dir, 'df_1_2'), split=[0, 1], title='df_1_2')
+    main(df_1_3, hyperp, join(root_dir, 'df_1_3'), split=[0, 1], title='df_1_3')
 
     ### 5. Entrenar con 1_2 vs 3_4.
-    main(df_1_2_vs_3_4, hyperp, join(root_dir, 'df_1_2_vs_3_4'), split=[0, 1])
+    main(df_1_2_vs_3_4, hyperp, join(root_dir, 'df_1_2_vs_3_4'), split=[0, 1], title='df_1_2_vs_3_4')
 
 
 #     final_epochs, metric, patience = 50, 'balanced_accuracy_score', 3
@@ -259,14 +264,5 @@ if __name__=='__main__':
 
 
 """
-TODO: Save results!
-    TODO: try different hyperparameters settings!
-
-    Once we have all results --> Create an script to join results in a joined CSV?
-
-    Or create one big json with all results, then convert to csv!
-
-    1. Get all results in subfolders
-    2. Create a final report!
-    3. Calculate the values for each variable --> histogram, KDE, etc --> like how I did for TSAI TS Classification
+TODO: Make Report Again
 """

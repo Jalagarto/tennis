@@ -1,0 +1,108 @@
+clases:  [3 2 4 1]
+##################################################
+creating new dir: /home/javier/mis_proyectos/tennis_results/try2/df_1_2_3_vs_4
+████████████████████████████████████████████████
+
+Calculated Lrt:  0.0012022644514217973 using:  0.00024045289028435947 
+
+█epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+██0         0.722326    0.682440    0.568056  0.511943                 00:00     
+█epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+██0         0.671134    0.673000    0.580110  0.532854                 00:00     
+██1         0.662726    0.663059    0.585635  0.531224                 00:00     
+██2         0.655044    0.657809    0.592165  0.548707                 00:00     
+
+Learning Rate:  0.0012022644514217973
+█epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+██0         0.641465    0.654849    0.599699  0.566910                 00:00     
+██1         0.640917    0.655156    0.595178  0.564816                 00:00     
+██2         0.637638    0.654230    0.591662  0.565435                 00:00     
+█epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+██0         0.631909    0.656460    0.586640  0.575010                 00:00     
+Better model found at epoch 0 with balanced_accuracy_score value: 0.5750102170556717.
+██1         0.639029    0.655861    0.585133  0.561898                 00:00     
+██2         0.641519    0.657877    0.602712  0.584092                 00:00     
+██3         0.637598    0.657052    0.588649  0.556222                 00:00     
+██4         0.632930    0.650431    0.590156  0.556461                 00:00     
+█epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+██0         0.642644    0.652626    0.590658  0.581112                 00:00     
+Better model found at epoch 0 with accuracy value: 0.5906579494476318.
+██1         0.633262    0.650848    0.592165  0.576293                 00:00     
+██2         0.628045    0.665284    0.578604  0.556830                 00:00     
+██3         0.628425    0.654631    0.578604  0.556523                 00:00     
+██4         0.626102    0.650020    0.591662  0.582446                 00:00     
+No improvement since epoch 1: early stopping
+█
+### Classification Report: ### 
+█              precision    recall  f1-score   support
+
+           1       0.64      0.65      0.64      1144
+           4       0.52      0.52      0.52       847
+
+    accuracy                           0.59      1991
+   macro avg       0.58      0.58      0.58      1991
+weighted avg       0.59      0.59      0.59      1991
+
+█### Confusion Matrix: ###
+ [[738 406]
+ [409 438]]
+
+
+ Calculating feature importance over split: 0
+Getting base error
+█Traceback (most recent call last):
+  File "train_v5_fastai.py", line 232, in <module>
+    main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
+  File "train_v5_fastai.py", line 209, in main
+    res = PermutationImportance(learn, df.iloc[splits[i]], bs=64, title=title)
+  File "train_v5_fastai.py", line 142, in __init__
+    self.results = self.calc_feat_importance()
+  File "train_v5_fastai.py", line 160, in calc_feat_importance
+    base_error = self.learn.validate(dl=self.dl)[1]
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastai/learner.py", line 235, in validate
+    with self.validation_context(cbs=cbs): self._do_epoch_validate(ds_idx, dl)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastai/learner.py", line 203, in _do_epoch_validate
+    with torch.no_grad(): self._with_events(self.all_batches, 'validate', CancelValidException)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastai/learner.py", line 163, in _with_events
+    try: self(f'before_{event_type}');  f()
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastai/learner.py", line 169, in all_batches
+    for o in enumerate(self.dl): self.one_batch(*o)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastai/data/load.py", line 129, in __iter__
+    yield self.after_batch(b)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/transform.py", line 200, in __call__
+    def __call__(self, o): return compose_tfms(o, tfms=self.fs, split_idx=self.split_idx)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/transform.py", line 150, in compose_tfms
+    x = f(x, **kwargs)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/transform.py", line 113, in __call__
+    def __call__(self, x, **kwargs): return self._call1(x, '__call__', **kwargs)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/transform.py", line 116, in _call1
+    if not _is_tuple(x): return getattr(super(), name)(x, **kwargs)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/transform.py", line 73, in __call__
+    def __call__(self, x, **kwargs): return self._call('encodes', x, **kwargs)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/transform.py", line 83, in _call
+    return self._do_call(getattr(self, fn), x, **kwargs)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/transform.py", line 89, in _do_call
+    return retain_type(f(x, **kwargs), x, ret)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/dispatch.py", line 123, in __call__
+    return f(*args, **kwargs)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastai/tabular/core.py", line 325, in encodes
+    else: res = (tensor(to.cats).long(),tensor(to.conts).float())
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastai/tabular/core.py", line 206, in f
+    def f(o): return o[list(getattr(o,nm+'_names'))]
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/fastcore/foundation.py", line 87, in __getitem__
+    def __getitem__(self, k): return self.items[list(k) if isinstance(k,CollBase) else k]
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/pandas/core/frame.py", line 2912, in __getitem__
+    indexer = self.loc._get_listlike_indexer(key, axis=1, raise_missing=True)[1]
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/pandas/core/indexing.py", line 1249, in _get_listlike_indexer
+    indexer = ax.get_indexer_for(keyarr)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/pandas/core/indexes/base.py", line 4716, in get_indexer_for
+    return self.get_indexer(target, **kwargs)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/pandas/core/indexes/base.py", line 2965, in get_indexer
+    target = ensure_index(target)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/pandas/core/indexes/base.py", line 5623, in ensure_index
+    return Index(index_like)
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/pandas/core/indexes/base.py", line 340, in __new__
+    elif is_timedelta64_dtype(data_dtype) or is_timedelta64_dtype(dtype):
+  File "/home/javier/pyenvs/tennis/lib/python3.8/site-packages/pandas/core/dtypes/common.py", line 453, in is_timedelta64_dtype
+    return _is_dtype_type(arr_or_dtype, classes(np.timedelta64))
+KeyboardInterrupt

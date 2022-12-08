@@ -52,7 +52,7 @@ def MLE(X, sns_output, n, color='b', percentiles=(0.15,0.85)):
     lmax = plt.axvline(x=Global_Max_MLE, color=color, ls=(0, (5, 5)))
     q1 = plt.axvline(x=q1, color=color, ls=(0, (5, 30)), lw=1)
     q2 = plt.axvline(x=q2, color=color, ls=(0, (5, 30)), lw=1)
-    return Global_Max_MLE, local_MLEs, lmax, q1, q2
+    return Global_Max_MLE, local_MLEs, lmax, q1, q2, x,y
 
 
 def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), figsize=(15,8), title_='Successful', 
@@ -85,22 +85,43 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     fig, ax1 = plt.subplots(figsize=figsize)
 
     # ax1.fill_between(x,y, color="red", alpha=0.2)
+
+    sns_output = sns.histplot((df1, df2, df3, df4), kde=True, alpha=0.20, edgecolor='k', lw=0.0)
+    ax1.get_legend().remove()  # remove legend
+
+    ### add text box
+    import matplotlib.patches as patches
+    rect = patches.Rectangle((0.76,0.83),0.21,0.14, facecolor='grey', alpha=0.2, transform=fig.transFigure)
+    ax1.add_patch(rect)
+
     # plt.clf()
-    sns_output = sns.histplot((df1, df2, df3, df4), kde=True, alpha=0.1, legend=True, lw=0.0)
-    Global_Max_MLE, local_MLEs, lmax, q1, q2 = MLE(x4, sns_output,0, color='r')
-    plt.text(8,175, f"Máx Prob: {Global_Max_MLE}", color='r')
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x4, sns_output,0, color='r')
+    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="r", alpha=0.0)
+    plt.text(213, 145, f"Efectividad=4  ---  Máx Prob: {Global_Max_MLE}", color='r', fontsize=11)
+    
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x3, sns_output,1, color='g')
+    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="g", alpha=0.0)
+    plt.text(213, 151, f"Efectividad=3  ---  Máx Prob: {Global_Max_MLE}", color='g', fontsize=11)
+    
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x2, sns_output,2, color='orange')
+    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="orange", alpha=0.0)    
+    plt.text(213, 157, f"Efectividad=2  ---  Máx Prob: {Global_Max_MLE}", color='orange', fontsize=11)
 
-    Global_Max_MLE, local_MLEs, lmax, q1, q2 = MLE(x3, sns_output,1, color='g')
-    plt.text(8,180, f"Máx Prob: {Global_Max_MLE}", color='g')
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x1, sns_output,3, color='b')
+    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="b", alpha=0.0)    
+    plt.text(213, 163, f"Efectividad=1  ---  Máx Prob: {Global_Max_MLE}", color='b', fontsize=11)
+    
+    plt.xlabel(feature)
+    plt.xlim([120, 240])
+    plt.ylim([0, 170])
 
-    Global_Max_MLE, local_MLEs, lmax, q1, q2 = MLE(x2, sns_output,2, color='orange')
-    plt.text(8,185, f"Máx Prob: {Global_Max_MLE}", color='orange')
 
-    Global_Max_MLE, local_MLEs, lmax, q1, q2 = MLE(x1, sns_output,3, color='b')
-    plt.text(8,190, f"Máx Prob: {Global_Max_MLE}", color='b')
-
-    # plt.grid(visible=None)
-    tics = [x*0.5 for x in range(18)]
+    plt.grid(visible=None)
+    tics = [160+(x*5) for x in range(10)]
     plt.xticks(tics)
 
     fig.tight_layout()   # Reduce margins in plot
@@ -123,8 +144,7 @@ if __name__=='__main__':
     df = pd.read_csv(DS)
     #########
 
-    plot_hist(df, fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 
+    plot_hist(df, feature='V(km/h)', fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 
         title_='kde', plot=True)
-
 
     logger.info("TODO: do the same with gausian KDE. Don't plot the bars, but plot percentiles areas in between!")
