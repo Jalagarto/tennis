@@ -72,57 +72,78 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     df3 = df[df.Efectividad==3][feature]
     df4 = df[df.Efectividad==4][feature]
 
+    df2.Efectividad = 1
+    df3.Efectividad = 4
+    df_1_2 = pd.concat([df1, df2])
+    df_3_4 = pd.concat([df3, df4])
+
     x1 = df1.values
     x2 = df2.values
     x3 = df3.values
     x4 = df4.values
+    x_1_2 = df_1_2.values
+    x_3_4 = df_3_4.values
 
     df1 = df1.rename('Efectividad = 1', inplace=True)
     df2 = df2.rename('Efectividad = 2', inplace=True)
     df3 = df3.rename('Efectividad = 3', inplace=True)
-    df4 = df4.rename('Efectividad = 4', inplace=True)    
+    df4 = df4.rename('Efectividad = 4', inplace=True)
+    df_1_2 = df_1_2.rename('Efectividad = 1 & 2', inplace=True)
+    df_3_4 = df_3_4.rename('Efectividad = 3 & 4', inplace=True)    
 
     fig, ax1 = plt.subplots(figsize=figsize)
 
     # ax1.fill_between(x,y, color="red", alpha=0.2)
 
-    sns_output = sns.histplot((df1, df2, df3, df4), kde=True, alpha=0.20, edgecolor='k', lw=0.0)
+    # sns_output = sns.histplot((df1, df2, df3, df4), kde=True, alpha=0.20, edgecolor='k', lw=0.0)
+    sns_output = sns.histplot((df1, df2, df3, df4, df_1_2, df_3_4), kde=True, alpha=0.0, edgecolor='k', lw=0.0)
     ax1.get_legend().remove()  # remove legend
 
     ### add text box
     import matplotlib.patches as patches
-    rect = patches.Rectangle((0.76,0.83),0.21,0.14, facecolor='grey', alpha=0.2, transform=fig.transFigure)
+    rect = patches.Rectangle((0.74,0.83),0.21,0.14, facecolor='grey', alpha=0.2, transform=fig.transFigure)
     ax1.add_patch(rect)
 
     # plt.clf()
-    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x4, sns_output,0, color='r')
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x_1_2, sns_output,0, color='maroon')
     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
-    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="r", alpha=0.0)
-    plt.text(213, 145, f"Efectividad=4  ---  Máx Prob: {Global_Max_MLE}", color='r', fontsize=11)
+    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="maroon", alpha=0.2)
+    plt.text(1.6, 260, f"Efectividad=1_2  ---  Máx Prob: {Global_Max_MLE}", color='maroon', fontsize=12)
     
-    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x3, sns_output,1, color='g')
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x_3_4, sns_output,1, color='m')
     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
-    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="g", alpha=0.0)
-    plt.text(213, 151, f"Efectividad=3  ---  Máx Prob: {Global_Max_MLE}", color='g', fontsize=11)
-    
-    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x2, sns_output,2, color='orange')
-    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
-    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="orange", alpha=0.0)    
-    plt.text(213, 157, f"Efectividad=2  ---  Máx Prob: {Global_Max_MLE}", color='orange', fontsize=11)
+    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="m", alpha=0.2)
+    plt.text(1.6, 250, f"Efectividad=3_4  ---  Máx Prob: {Global_Max_MLE}", color='m', fontsize=12)
 
-    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x1, sns_output,3, color='b')
-    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
-    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="b", alpha=0.0)    
-    plt.text(213, 163, f"Efectividad=1  ---  Máx Prob: {Global_Max_MLE}", color='b', fontsize=11)
+#     # plt.clf()
+#     Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x4, sns_output,0, color='r')
+#     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+#     ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="r", alpha=0.0)
+    plt.text(1.6, 240, f"Efectividad=4  ---  Máx Prob: {Global_Max_MLE}", color='r', fontsize=11)
+#     
+#     Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x3, sns_output,1, color='g')
+#     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+#     ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="g", alpha=0.0)
+    plt.text(1.6, 230, f"Efectividad=3  ---  Máx Prob: {Global_Max_MLE}", color='g', fontsize=11)
+#     
+#     Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x2, sns_output,2, color='orange')
+#     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+#     ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="orange", alpha=0.0)    
+    plt.text(1.6, 220, f"Efectividad=2  ---  Máx Prob: {Global_Max_MLE}", color='orange', fontsize=11)
+# 
+#     Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y = MLE(x1, sns_output,3, color='b')
+#     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+#     ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="b", alpha=0.0)    
+    plt.text(1.6, 210, f"Efectividad=1  ---  Máx Prob: {Global_Max_MLE}", color='b', fontsize=11)
     
     plt.xlabel(feature)
-    plt.xlim([120, 240])
-    plt.ylim([0, 170])
+    # plt.xlim([120, 240])
+    # plt.ylim([0, 200])
 
 
     plt.grid(visible=None)
-    tics = [160+(x*5) for x in range(10)]
-    plt.xticks(tics)
+    # tics = [160+(x*5) for x in range(10)]
+    # plt.xticks(tics)
 
     fig.tight_layout()   # Reduce margins in plot
 
@@ -144,7 +165,7 @@ if __name__=='__main__':
     df = pd.read_csv(DS)
     #########
 
-    plot_hist(df, feature='V(km/h)', fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 
+    plot_hist(df, feature='dLinea', fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 
         title_='kde', plot=True)
 
     logger.info("TODO: do the same with gausian KDE. Don't plot the bars, but plot percentiles areas in between!")

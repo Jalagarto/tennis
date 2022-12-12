@@ -26,6 +26,9 @@ def get_filtered_dfs(df):
 ###### Note that this should just be a class --> no time to code properly. Spend some time in the future to make it better #######
 ##################################################################################################################################
 
+### 0. Baseline 1,2,3,4 all 4 classes
+df1,df2,df3,df4 = get_filtered_dfs(df)
+df_1_2_3_4 = pd.concat([df1, df2, df3, df4])
 
 ### 1. Entrenar con 1_2_3 vs 4.
 df1,df2,df3,df4 = get_filtered_dfs(df)
@@ -45,8 +48,8 @@ df_2_4 = pd.concat([df2,df4])
 df_3_4 = pd.concat([df3,df4])
 
 ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4
-df_1_2 = pd.concat([df1,df4])
-df_1_3 = pd.concat([df2,df4])
+df_1_2 = pd.concat([df1,df2])
+df_1_3 = pd.concat([df1,df3])
 # df_1_4 = pd.concat([df3,df4])  # already done
 
 ### 5. Entrenar con 1_2 vs 3_4.
@@ -54,6 +57,7 @@ df1,df2,df3,df4 = get_filtered_dfs(df)
 df2.Efectividad = 1
 df3.Efectividad = 4
 df_1_2_vs_3_4 = pd.concat([df1, df2, df3, df4])
+
 
 # ***APScoreBinary:*** Average Precision for single-label binary classification problems  
 # ***APScoreMulti:***  Average Precision for multi-label classification problems
@@ -114,6 +118,8 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
     
     ### reset the model path
     learn.path = keep_path
+
+    breakpoint()
     
     interp = ClassificationInterpretation.from_learner(learn)
     # interp.plot_confusion_matrix()
@@ -229,8 +235,15 @@ if __name__=='__main__':
 
     class hyperp:
         final_epochs, metric, patience = 50, 'accuracy', 3 # 'balanced_accuracy_score', 3
+    # class hyperp0:
+    #     final_epochs, metric, patience = 100, 'balanced_accuracy_score', 10 # 'balanced_accuracy_score', 3
 
     root_dir = '/home/javier/mis_proyectos/tennis_results/try2'
+
+    ### 0. Baseline 1,2,3,4 all 4 classes
+    df1,df2,df3,df4 = get_filtered_dfs(df)
+    df_1_2_3_4 = pd.concat([df1, df2, df3, df4])    
+    main(df_1_2_3_4, hyperp, join(root_dir, 'df_1_2_3_4'), split=[0, 1], title='df_1_2_3_4')
 
     ### 1. Entrenar con 1_2_3 vs 4.
     main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
@@ -266,3 +279,4 @@ if __name__=='__main__':
 """
 TODO: Make Report Again
 """
+### analisis discriminante --> clustering?
