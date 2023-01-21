@@ -54,6 +54,24 @@ def MLE(X, sns_output, n, color='b', percentiles=(0.15,0.85)):
     q2 = plt.axvline(x=q2, color=color, ls=(0, (5, 30)), lw=1)
     return Global_Max_MLE, local_MLEs, lmax, q1, q2, x,y, max_value
 
+
+def MLE_values(X, sns_output, n):
+    """ Get peaks as local MLEs (get also the global max MLE): 
+    gets only values. It doesn't pplot anything"""
+    l_kde = sns_output.get_lines()[n].get_xydata()   # trying to get the line for the legend
+    x,y = l_kde[:,0], l_kde[:,1]
+    peaks, _ = find_peaks(y, height=0)
+    local_MLEs = []
+    for p in peaks:
+        MLE = round(x[p],1)
+        local_MLEs.append(MLE)
+        # l = plt.axvline(x=MLE, color='orange', lw=linewidths[0], ls='dotted')
+    max_value = max(y)
+    max_index = list(y).index(max_value)
+    Global_Max_MLE = round(x[max_index], 2)
+    return Global_Max_MLE, local_MLEs, x,y, max_value
+
+
 def calc_prob_betwen_values(x1,x2):
     ...
 
@@ -207,8 +225,103 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
         file_name = title_+'_'+'.png'
         plt.savefig(join(save_dir, file_name))
 
+    """
+    from other article -->  show chart with statistics -->  mean, SD, quantiles 0.025 - 0.975  (95%)
+    We also add: median, mode, MaxLikelihook
+    """
     return X_Stacked # , sns_output
 
+
+def get_stats_table(df, features='all', percentiles=(0.1,0.9), save_dir=False):
+    """
+    from other article -->  show chart with statistics -->  mean, SD, quantiles 0.025 - 0.975  (95%)
+    We also add: median, mode, MaxLikelihook    
+    """
+    from tabulate import tabulate
+    vars_dicto = {k:v for v,k in enumerate(df.columns)}
+    stats_df = df.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
+
+    X_Stacked = df.values
+
+    df1 = df[df.Efectividad==1]
+    df2 = df[df.Efectividad==2]
+    df3 = df[df.Efectividad==3]
+    df4 = df[df.Efectividad==4]
+
+    x1 = df1.values
+    x2 = df2.values
+    x3 = df3.values
+    x4 = df4.values
+
+    total_counts = sum([len(x1), len(x2), len(x3), len(x4)])
+
+    print('total_counts: ', total_counts)
+    print('counts per dataset (1,2,3,4): ', len(x1), len(x2), len(x3), len(x4))
+    
+    ### probabilidades totales de cada dataset
+    p1=round(100*len(x1)/total_counts, 1)
+    p2=round(100*len(x2)/total_counts, 1)
+    p3=round(100*len(x3)/total_counts, 1)
+    p4=round(100*len(x4)/total_counts, 1)
+    print('probabilidades porcentuales de x1, x2, x3, x4 =' ,  p1, p2, p3, p4)
+
+
+    def get_MLE(vars_dicto, df):
+        results={'Efectividad': None}
+        counter = 0
+        for k,v in vars_dicto.items():
+            if v!=0:
+                sns_output = sns.histplot((df[k]), kde=True, stat='percent')
+                Global_Max_MLE, local_MLEs, x,y, max_value = MLE_values(df.values, sns_output, counter)
+                results[k] = Global_Max_MLE
+                counter+=1
+        plt.clf()
+        return results
+
+    results = get_MLE(vars_dicto, df)
+    df_results = pd.DataFrame(results,index=['MaxLikelihood'])
+    stats_df = stats_df.append(df_results).round(3)
+    print(tabulate(stats_df, headers=stats_df.columns, tablefmt='fancy_grid'))
+
+    results = get_MLE(vars_dicto, df1)
+    df_results = pd.DataFrame(results,index=['MaxLikelihood'])
+    stats_df_1 = df1.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
+    stats_df_1 = stats_df_1.append(df_results).round(3)
+    print(tabulate(stats_df_1, headers=stats_df_1.columns, tablefmt='fancy_grid'))
+
+    results = get_MLE(vars_dicto, df2)
+    df_results = pd.DataFrame(results,index=['MaxLikelihood'])
+    stats_df_2 = df2.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
+    stats_df_2 = stats_df_2.append(df_results).round(3)
+    print(tabulate(stats_df_2, headers=stats_df_2.columns, tablefmt='fancy_grid'))
+
+    results = get_MLE(vars_dicto, df3)
+    df_results = pd.DataFrame(results,index=['MaxLikelihood'])
+    stats_df_3 = df3.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
+    stats_df_3 = stats_df_3.append(df_results).round(3)
+    print(tabulate(stats_df_3, headers=stats_df_3.columns, tablefmt='fancy_grid'))
+
+    results = get_MLE(vars_dicto, df4)
+    df_results = pd.DataFrame(results,index=['MaxLikelihood'])
+    stats_df_4 = df4.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
+    stats_df_4 = stats_df_4.append(df_results).round(3)
+    print(tabulate(stats_df_4, headers=stats_df_4.columns, tablefmt='fancy_grid'))
+
+    # percentile % seems to be the median, but we could add the mode if we feel like it
+
+    ### WE HAVE DONE IT FOR ALL DS. DO THE SAME FOR EACH SUBSET!!!!!!!!!!!!!!!!!!!!! df1, df2, df3, df4
+    # sns_output = sns.histplot((df1[k], df2[k], df3[k], df4[k]), kde=True, stat='percent')
+    # ...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+
+    if save_dir:
+        with pd.ExcelWriter(join(save_dir, 'stats.xlsx')) as writer:  
+            stats_df.to_excel(writer, sheet_name='general stats')
+            stats_df_1.to_excel(writer, sheet_name='stats_Efect_1')
+            stats_df_2.to_excel(writer, sheet_name='stats_Efect_2')
+            stats_df_3.to_excel(writer, sheet_name='stats_Efect_3')
+            stats_df_4.to_excel(writer, sheet_name='stats_Efect_4')
+
+    return stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4
 
 
 if __name__=='__main__':
@@ -218,8 +331,14 @@ if __name__=='__main__':
     df = pd.read_csv(DS)
     #########
 
-    # save_dir = '/home/javier/tennis_results_2'
+    save_dir = '/home/javier/tennis_results_2'
 
-    feature = 'ANG. IN'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
-    plot_hist(df, feature=feature, fill_area=False, percentiles=(0.1,0.9), figsize=(15,10), 
-        title_=feature, plot=True)
+    # feature = 'ANG. IN'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
+    # plot_hist(df, feature=feature, fill_area=False, percentiles=(0.01,0.99), figsize=(15,10), 
+    #     title_=feature, plot=True)
+
+    stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
+            percentiles=(0.025,0.975), save_dir=save_dir)
+
+    print('\nWE HAVE DONE IT FOR ALL DS. DO THE SAME FOR EACH SUBSET!!!!!!!!!!!!!!!!!!!!! df1, df2, df3, df4')
+    print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms")    

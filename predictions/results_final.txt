@@ -1,0 +1,399 @@
+tennis) javier@javier-P95xER:~/mis_proyectos/tennis/predictions$ python train_v5_fastai.py
+clases:  [3 2 4 1]
+split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...
+...and 1 on Test Data
+##################################################
+creating new dir: /home/javier/mis_proyectos/tennis_results/try2/df_1_2_3_vs_4
+Epoch 20/26 : |█████████████████████████---------------------------------------------------------------------------| 25.00% [1/4 00:00<00:00]        
+
+Calculated Lrt:  0.0010000000474974513 using:  0.00020000000949949026 
+
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.692969    0.685411    0.573079  0.574246                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.667263    0.689254    0.528378  0.542907                 00:00                                                                         
+1         0.660443    0.676804    0.571070  0.584521                 00:00                                                                         
+2         0.653181    0.672949    0.568056  0.586301                 00:00                                                                         
+
+Learning Rate:  0.0010000000474974513
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.642251    0.672590    0.578604  0.581838                 00:00                                                                         
+1         0.640136    0.664572    0.578101  0.592008                 00:00                                                                         
+2         0.637640    0.662680    0.570065  0.580734                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.631285    0.653941    0.583124  0.579757                 00:00                                                                         
+Better model found at epoch 0 with balanced_accuracy_score value: 0.5797571621067432.
+1         0.644316    0.693480    0.576092  0.545593                 00:00                                                                         
+2         0.645430    0.669175    0.602210  0.555017                 00:00                                                                         
+3         0.638309    0.656911    0.592165  0.545780                 00:00                                                                         
+No improvement since epoch 0: early stopping
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.630216    0.650565    0.584631  0.579848                 00:00                                                                          
+Better model found at epoch 0 with accuracy value: 0.5846308469772339.
+1         0.622301    0.659238    0.594676  0.581043                 00:00                                                                          
+Better model found at epoch 1 with accuracy value: 0.5946760177612305.
+2         0.622148    0.664131    0.593672  0.577648                 00:00                                                                          
+3         0.621059    0.660456    0.576092  0.569525                 00:00                                                                          
+4         0.619148    0.663349    0.595681  0.573650                 00:00                                                                          
+5         0.618136    0.657857    0.595178  0.562046                 00:00                                                                          
+6         0.617172    0.661600    0.601708  0.567737                 00:00                                                                          
+7         0.615600    0.661322    0.595681  0.560115                 00:00                                                                          
+8         0.613952    0.669171    0.591160  0.555331                 00:00                                                                          
+9         0.612761    0.671423    0.594676  0.568097                 00:00                                                                          
+No improvement since epoch 6: early stopping
+                                                                                                                                        
+### Classification Report: ### 
+              precision    recall  f1-score   support                                                                                   
+
+           1       0.66      0.65      0.66      1183
+           4       0.50      0.51      0.50       808
+
+    accuracy                           0.59      1991
+   macro avg       0.58      0.58      0.58      1991
+weighted avg       0.60      0.59      0.60      1991
+
+### Confusion Matrix: ###                                                                                                               
+ [[773 410]
+ [397 411]]
+
+
+ Calculating feature importance over split: 0
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:02<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  &(grados)                                  0.0807159
+ 1  TIME                                       0.0567376
+ 2  dLinea                                     0.0530226
+ 3  V(km/h)                                    0.0341101
+ 4  ANG. IN                                    0.0270179
+ 5  [YA]                                       0.0253293
+ 6  difV                                       0.0199257
+ 7  Znet                                       0.0192503
+ 8  ZA                                         0.0185748
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T  -0.000337693
+
+ Results dicto: OrderedDict([('&(grados)', 0.08071592707148934), ('TIME', 0.05673759926736603), ('dLinea', 0.05302260622935316), ('V(km/h)', 0.03411013550267324), ('ANG. IN', 0.02701793559425249), ('[YA]', 0.025329285387216977), ('difV', 0.019925735685831735), ('Znet', 0.019250256894284903), ('ZA', 0.018574778102738068), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', -0.0003376926239418458)])
+lenght of the splits: 4647 
+
+
+
+ Calculating feature importance over split: 1
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:01<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  &(grados)                                   0.0599662
+ 1  TIME                                        0.0396959
+ 2  dLinea                                      0.035473
+ 3  ZA                                          0.0329391
+ 4  V(km/h)                                     0.0101351
+ 5  [YA]                                        0.0101351
+ 6  difV                                        0.00844592
+ 7  ANG. IN                                     0.00760128
+ 8  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0.00253373
+ 9  Znet                                        0.00168918
+
+ Results dicto: OrderedDict([('&(grados)', 0.059966174227784524), ('TIME', 0.03969586874141025), ('dLinea', 0.03547295942831759), ('ZA', 0.03293913365610211), ('V(km/h)', 0.01013510262796221), ('[YA]', 0.01013510262796221), ('difV', 0.008445918856635176), ('ANG. IN', 0.007601276855746733), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', 0.0025337255417656277), ('Znet', 0.0016891837713270351)])
+lenght of the splits: 1991 
+
+split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...
+...and 1 on Test Data
+##################################################
+creating new dir: /home/javier/mis_proyectos/tennis_results/try2/df_1_4
+Epoch 39/51 : |██████████████████████████████████████████████████--------------------------------------------------| 50.00% [1/2 00:00<00:00]        
+
+Calculated Lrt:  0.0010000000474974513 using:  0.00020000000949949026 
+
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.723735    0.721770    0.233010  0.521114                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.646883    0.702555    0.387379  0.607782                 00:00                                                                         
+1         0.611760    0.672498    0.621359  0.741296                 00:00                                                                         
+2         0.590699    0.652339    0.696117  0.785162                 00:00                                                                         
+
+Learning Rate:  0.0010000000474974513
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.522511    0.636034    0.733010  0.803765                 00:00                                                                         
+1         0.514503    0.615229    0.763107  0.820217                 00:00                                                                         
+2         0.500118    0.594894    0.787379  0.833094                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.468859    0.539791    0.809709  0.842757                 00:00                                                                         
+Better model found at epoch 0 with balanced_accuracy_score value: 0.8427572090933485.
+1         0.451510    0.471162    0.828155  0.827796                 00:00                                                                         
+2         0.432654    0.406902    0.861165  0.852102                 00:00                                                                         
+3         0.411103    0.366103    0.877670  0.862233                 00:00                                                                         
+Better model found at epoch 3 with balanced_accuracy_score value: 0.8622331496608403.
+4         0.397621    0.353741    0.878641  0.860807                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.335111    0.357168    0.879612  0.859381                 00:00                                                                          
+Better model found at epoch 0 with accuracy value: 0.8796116709709167.
+1         0.333964    0.350427    0.877670  0.854146                 00:00                                                                          
+2         0.334395    0.342526    0.878641  0.846654                 00:00                                                                          
+3         0.333259    0.337127    0.882524  0.840951                 00:00                                                                          
+4         0.328665    0.323897    0.888350  0.832395                 00:00                                                                          
+5         0.323038    0.311617    0.891262  0.824074                 00:00                                                                          
+Better model found at epoch 5 with accuracy value: 0.8912621140480042.
+6         0.318578    0.303383    0.894175  0.819796                 00:00                                                                          
+7         0.312440    0.286498    0.901942  0.816476                 00:00                                                                          
+Better model found at epoch 7 with accuracy value: 0.9019417762756348.
+8         0.304919    0.278371    0.903884  0.807559                 00:00                                                                          
+9         0.298240    0.282465    0.897087  0.813496                 00:00                                                                          
+10        0.290655    0.274606    0.902913  0.802919                 00:00                                                                          
+11        0.282983    0.297063    0.896116  0.835141                 00:00                                                                          
+No improvement since epoch 8: early stopping
+                                                                                                                                        
+### Classification Report: ### 
+              precision    recall  f1-score   support                                                                                   
+
+           1       0.76      0.68      0.72       191
+           4       0.93      0.95      0.94       839
+
+    accuracy                           0.90      1030
+   macro avg       0.85      0.82      0.83      1030
+weighted avg       0.90      0.90      0.90      1030
+
+### Confusion Matrix: ###                                                                                                               
+ [[130  61]
+ [ 40 799]]
+
+
+ Calculating feature importance over split: 0
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:01<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  TIME                                        0.157581
+ 1  &(grados)                                   0.138342
+ 2  Znet                                        0.075126
+ 3  V(km/h)                                     0.042602
+ 4  ANG. IN                                     0.0311498
+ 5  dLinea                                      0.0306917
+ 6  difV                                        0.0261109
+ 7  ZA                                          0.0219881
+ 8  [YA]                                        0.00229047
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0
+
+ Results dicto: OrderedDict([('TIME', 0.157581301073162), ('&(grados)', 0.13834177284567623), ('Znet', 0.07512600193568905), ('V(km/h)', 0.042601962535326), ('ANG. IN', 0.031149824892015923), ('dLinea', 0.030691731509624127), ('difV', 0.02611086332453445), ('ZA', 0.021988088521836563), ('[YA]', 0.0022904669119589677), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', 0.0)])
+lenght of the splits: 2404 
+
+
+
+ Calculating feature importance over split: 1
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:00<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  TIME                                        0.148547
+ 1  &(grados)                                   0.138859
+ 2  Znet                                        0.0699677
+ 3  V(km/h)                                     0.0538213
+ 4  difV                                        0.0365985
+ 5  ZA                                          0.0290636
+ 6  ANG. IN                                     0.022605
+ 7  dLinea                                      0.0139936
+ 8  [YA]                                        0.00430576
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0
+
+ Results dicto: OrderedDict([('TIME', 0.14854687447958217), ('&(grados)', 0.13885904058611406), ('Znet', 0.0699677479726504), ('V(km/h)', 0.05382131409366807), ('difV', 0.03659849094030216), ('ZA', 0.029063567765207566), ('ANG. IN', 0.022604967779693355), ('dLinea', 0.013993589245411997), ('[YA]', 0.004305755351943871), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', 0.0)])
+lenght of the splits: 1030 
+
+split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...
+...and 1 on Test Data
+##################################################
+creating new dir: /home/javier/mis_proyectos/tennis_results/try2/df_2_4
+Epoch 26/34 : |█████████████████████████████████-------------------------------------------------------------------| 33.33% [1/3 00:00<00:00]        
+
+Calculated Lrt:  0.0006918309954926372 using:  0.00013836619909852744 
+
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.770924    0.700364    0.427106  0.480419                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.720832    0.692769    0.512821  0.519012                 00:00                                                                         
+1         0.713489    0.686331    0.561172  0.548806                 00:00                                                                         
+2         0.706238    0.681764    0.588278  0.562459                 00:00                                                                         
+
+Learning Rate:  0.0006918309954926372
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.691867    0.679096    0.615385  0.572458                 00:00                                                                         
+1         0.687022    0.674446    0.625641  0.577238                 00:00                                                                         
+2         0.683609    0.671350    0.616850  0.575988                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.674030    0.663673    0.614652  0.571191                 00:00                                                                         
+Better model found at epoch 0 with balanced_accuracy_score value: 0.5711913072852156.
+1         0.694528    0.656317    0.608791  0.572019                 00:00                                                                         
+2         0.690718    0.677153    0.594872  0.549612                 00:00                                                                         
+3         0.680067    0.674400    0.584615  0.556790                 00:00                                                                         
+4         0.673695    0.672087    0.586081  0.552348                 00:00                                                                         
+No improvement since epoch 1: early stopping
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.659817    0.662044    0.616850  0.578645                 00:00                                                                          
+Better model found at epoch 0 with accuracy value: 0.6168498396873474.
+1         0.657973    0.659754    0.618315  0.580847                 00:00                                                                          
+2         0.656233    0.658197    0.619780  0.584709                 00:00                                                                          
+3         0.654316    0.658533    0.624908  0.584275                 00:00                                                                          
+4         0.651849    0.663081    0.602930  0.557567                 00:00                                                                          
+5         0.649166    0.660705    0.614652  0.558569                 00:00                                                                          
+6         0.646352    0.659493    0.605861  0.560309                 00:00                                                                          
+No improvement since epoch 3: early stopping
+                                                                                                                                        
+### Classification Report: ### 
+              precision    recall  f1-score   support                                                                                   
+
+           2       0.51      0.40      0.45       535
+           4       0.66      0.76      0.71       830
+
+    accuracy                           0.62      1365
+   macro avg       0.59      0.58      0.58      1365
+weighted avg       0.60      0.62      0.61      1365
+
+### Confusion Matrix: ###                                                                                                               
+ [[215 320]
+ [203 627]]
+
+
+ Calculating feature importance over split: 0
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:01<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  ANG. IN                                     0.0652283
+ 1  Znet                                        0.0647265
+ 2  TIME                                        0.0647265
+ 3  ZA                                          0.0587054
+ 4  dLinea                                      0.0521826
+ 5  difV                                        0.043151
+ 6  &(grados)                                   0.043151
+ 7  [YA]                                        0.0280983
+ 8  V(km/h)                                     0.0260912
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0.00100343
+
+ Results dicto: OrderedDict([('ANG. IN', 0.06522826400253455), ('Znet', 0.06472650006312544), ('TIME', 0.06472650006312544), ('ZA', 0.05870542807391156), ('dLinea', 0.05218259214528858), ('difV', 0.04315103180331539), ('&(grados)', 0.04315103180331539), ('[YA]', 0.028098304188433034), ('V(km/h)', 0.026091248430796642), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', 0.0010034325951229041)])
+lenght of the splits: 3186 
+
+
+
+ Calculating feature importance over split: 1
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:00<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  &(grados)                                   0.0570071
+ 1  Znet                                        0.0510689
+ 2  dLinea                                      0.043943
+ 3  ANG. IN                                     0.0273159
+ 4  TIME                                        0.02019
+ 5  ZA                                          0.0190024
+ 6  V(km/h)                                     0.0118765
+ 7  difV                                        0.0118765
+ 8  [YA]                                        0.00356295
+ 9  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T    0
+
+ Results dicto: OrderedDict([('&(grados)', 0.0570071203822815), ('Znet', 0.05106887867579384), ('dLinea', 0.043942988628008654), ('ANG. IN', 0.02731591184984322), ('TIME', 0.02019002180205803), ('ZA', 0.0190023734607605), ('V(km/h)', 0.011876483412975312), ('difV', 0.011876483412975312), ('[YA]', 0.0035629450238925937), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', 0.0)])
+lenght of the splits: 1365 
+
+split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...
+...and 1 on Test Data
+##################################################
+creating new dir: /home/javier/mis_proyectos/tennis_results/try2/df_3_4
+Epoch 45/51 : |██████████████████████████████████████████████████--------------------------------------------------| 50.00% [1/2 00:00<00:00]        
+
+Calculated Lrt:  0.0004786300996784121 using:  9.572601993568242e-05 
+
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.728568    0.672903    0.648757  0.503415                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.717116    0.680129    0.619086  0.509873                 00:00                                                                         
+1         0.700511    0.688067    0.550120  0.514339                 00:00                                                                         
+2         0.692206    0.693990    0.482759  0.510305                 00:00                                                                         
+
+Learning Rate:  0.0004786300996784121
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.677248    0.697708    0.458701  0.513496                 00:00                                                                         
+1         0.670782    0.698807    0.460305  0.514725                 00:00                                                                         
+2         0.669594    0.700849    0.452285  0.513447                 00:00                                                                         
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.659471    0.701093    0.534884  0.560500                 00:00                                                                         
+Better model found at epoch 0 with balanced_accuracy_score value: 0.560500139022079.
+1         0.695706    0.690484    0.571772  0.559029                 00:00                                                                         
+2         0.681901    0.690538    0.574980  0.551217                 00:00                                                                         
+3         0.664470    0.665214    0.611869  0.550286                 00:00                                                                         
+No improvement since epoch 0: early stopping
+epoch     train_loss  valid_loss  accuracy  balanced_accuracy_score  time    
+0         0.661794    0.699345    0.527666  0.546865                 00:00                                                                          
+Better model found at epoch 0 with accuracy value: 0.5276663899421692.
+1         0.655091    0.694865    0.525261  0.539077                 00:00                                                                          
+2         0.649635    0.693863    0.517241  0.524827                 00:00                                                                          
+3         0.645924    0.696816    0.510024  0.515515                 00:00                                                                          
+No improvement since epoch 0: early stopping
+                                                                                                                                        
+### Classification Report: ### 
+              precision    recall  f1-score   support                                                                                   
+
+           3       0.39      0.61      0.47       433
+           4       0.70      0.48      0.57       814
+
+    accuracy                           0.53      1247
+   macro avg       0.54      0.55      0.52      1247
+weighted avg       0.59      0.53      0.54      1247
+
+### Confusion Matrix: ###                                                                                                               
+ [[264 169]
+ [420 394]]
+
+
+ Calculating feature importance over split: 0
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:01<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  difV                                       0.0426333
+ 1  Znet                                       0.0420063
+ 2  &(grados)                                  0.0219437
+ 3  TIME                                       0.0206897
+ 4  ANG. IN                                    0.015047
+ 5  V(km/h)                                    0.0119123
+ 6  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T  -0.000626915
+ 7  [YA]                                      -0.00250777
+ 8  ZA                                        -0.0112852
+ 9  dLinea                                    -0.0119121
+
+ Results dicto: OrderedDict([('difV', 0.04263326486346725), ('Znet', 0.042006349894509395), ('&(grados)', 0.02194365622120337), ('TIME', 0.02068971746277577), ('ANG. IN', 0.015047047460107488), ('V(km/h)', 0.011912254974294418), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', -0.0006269149689578608), ('[YA]', -0.002507768696343326), ('ZA', -0.011285231184824674), ('dLinea', -0.011912146153782536)])
+lenght of the splits: 2912 
+
+
+
+ Calculating feature importance over split: 1
+Getting base error
+Calculating Permutation Importance                                                                                                        
+ |████████████████████████████████████████████████████████████████████████████████████████████████████| 100.00% [10/10 00:00<00:00]       
+
+    feature                                     importance
+--  ----------------------------------------  ------------
+ 0  TIME                                        0.0379939
+ 1  Znet                                        0.0273556
+ 2  V(km/h)                                     0.0243161
+ 3  difV                                        0.012158
+ 4  dLinea                                      0.00151975
+ 5  DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T   -0.00151975
+ 6  [YA]                                       -0.0151976
+ 7  ANG. IN                                    -0.0243161
+ 8  &(grados)                                  -0.0395137
+ 9  ZA                                         -0.0820669
+
+ Results dicto: OrderedDict([('TIME', 0.03799385796970057), ('Znet', 0.02735560936669222), ('V(km/h)', 0.024316109765832695), ('difV', 0.012157998403438109), ('dLinea', 0.0015197498004297636), ('DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T', -0.0015197498004297636), ('[YA]', -0.015197610963254112), ('ANG. IN', -0.024316109765832695), ('&(grados)', -0.03951372072908681), ('ZA', -0.08206694105903314)])
+lenght of the splits: 1247

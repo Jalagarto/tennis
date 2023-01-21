@@ -118,8 +118,6 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
     
     ### reset the model path
     learn.path = keep_path
-
-    breakpoint()
     
     interp = ClassificationInterpretation.from_learner(learn)
     # interp.plot_confusion_matrix()
@@ -190,7 +188,9 @@ class PermutationImportance():
         plt.title(f"feature permutation importance  -  {title} - {splits_names[split_n]}")
         ax.get_legend().remove()
         # plt.show()
-        plt.savefig(f"/home/javier/results_tennis2/{title}_{splits_names[split_n]}.png")
+        f = "/home/javier/tennis_results_2/trainings/"
+        os.makedirs(f, exist_ok=True)
+        plt.savefig(join(f, f"{title}_{splits_names[split_n]}.png"))
 
 
 
@@ -240,28 +240,28 @@ if __name__=='__main__':
 
     root_dir = '/home/javier/mis_proyectos/tennis_results/try2'
 
-    ### 0. Baseline 1,2,3,4 all 4 classes
-    df1,df2,df3,df4 = get_filtered_dfs(df)
-    df_1_2_3_4 = pd.concat([df1, df2, df3, df4])    
-    main(df_1_2_3_4, hyperp, join(root_dir, 'df_1_2_3_4'), split=[0, 1], title='df_1_2_3_4')
+    # ### 0. Baseline 1,2,3,4 all 4 classes
+    # df1,df2,df3,df4 = get_filtered_dfs(df)
+    # df_1_2_3_4 = pd.concat([df1, df2, df3, df4])    
+    # main(df_1_2_3_4, hyperp, join(root_dir, 'df_1_2_3_4'), split=[0, 1], title='df_1_2_3_4')
 
     ### 1. Entrenar con 1_2_3 vs 4.
     main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
 
-    ### 2. Entrenar 2 vs 3_4
-    main(df_2_vs_3_4, hyperp, join(root_dir, 'df_2_vs_3_4'), split=[0, 1], title='df_2_vs_3_4')
+    # ### 2. Entrenar 2 vs 3_4
+    # main(df_2_vs_3_4, hyperp, join(root_dir, 'df_2_vs_3_4'), split=[0, 1], title='df_2_vs_3_4')
 
     ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
     main(df_1_4, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], title='df_1_4')
     main(df_2_4, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
     main(df_3_4, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
 
-    ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4   ...   # df_1_4  already done above
-    main(df_1_2, hyperp, join(root_dir, 'df_1_2'), split=[0, 1], title='df_1_2')
-    main(df_1_3, hyperp, join(root_dir, 'df_1_3'), split=[0, 1], title='df_1_3')
+    # ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4   ...   # df_1_4  already done above
+    # main(df_1_2, hyperp, join(root_dir, 'df_1_2'), split=[0, 1], title='df_1_2')
+    # main(df_1_3, hyperp, join(root_dir, 'df_1_3'), split=[0, 1], title='df_1_3')
 
     ### 5. Entrenar con 1_2 vs 3_4.
-    main(df_1_2_vs_3_4, hyperp, join(root_dir, 'df_1_2_vs_3_4'), split=[0, 1], title='df_1_2_vs_3_4')
+    # main(df_1_2_vs_3_4, hyperp, join(root_dir, 'df_1_2_vs_3_4'), split=[0, 1], title='df_1_2_vs_3_4')
 
 
 #     final_epochs, metric, patience = 50, 'balanced_accuracy_score', 3
