@@ -232,6 +232,7 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     return X_Stacked # , sns_output
 
 
+
 def get_stats_table(df, features='all', percentiles=(0.1,0.9), save_dir=False):
     """
     from other article -->  show chart with statistics -->  mean, SD, quantiles 0.025 - 0.975  (95%)
@@ -333,12 +334,15 @@ if __name__=='__main__':
 
     save_dir = '/home/javier/tennis_results_2'
 
-    # feature = 'ANG. IN'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
-    # plot_hist(df, feature=feature, fill_area=False, percentiles=(0.01,0.99), figsize=(15,10), 
-    #     title_=feature, plot=True)
+    feature = 'ANG. IN'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
+    plot_hist(df, feature=feature, fill_area=False, percentiles=(0.01,0.99), figsize=(15,10), 
+        title_=feature, plot=True)
 
-    stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
-            percentiles=(0.025,0.975), save_dir=save_dir)
+    # stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
+    #         percentiles=(0.025,0.975), save_dir=save_dir)
 
     print('\nWE HAVE DONE IT FOR ALL DS. DO THE SAME FOR EACH SUBSET!!!!!!!!!!!!!!!!!!!!! df1, df2, df3, df4')
-    print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms")    
+    print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms") 
+
+
+    print("\nDO IT FOR DEUCE AND AD.?  SEE LINES 10 & 11 --> train_v5_fastai.py")   

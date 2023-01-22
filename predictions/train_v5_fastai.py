@@ -4,9 +4,11 @@ from tabulate import tabulate
 from os.path import join
 import os
 import numpy as np
+from fastinference.tabular import *  # Shap values
+
 
 DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
-DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+# DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
 
 ### FASTAI:
 df = pd.read_csv(DS)
@@ -131,7 +133,7 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
 ### FEATURE IMPORTANCE:
 class PermutationImportance():
     "Calculate and plot the permutation importance"
-    def __init__(self, learn:Learner, df=None, split_n=0, bs=None, title='datasets'):
+    def __init__(self, learn:Learner, df=None, split_n=0, bs=None, title='datasets', plot=True):
         "Initialize with a test dataframe, a learner, and a metric"
         self.learn = learn
         self.df = df
@@ -145,7 +147,8 @@ class PermutationImportance():
         self.y = learn.dls.y_names
         self.results = self.calc_feat_importance()
         self.results_df = self.ord_dic_to_df(self.results)
-        self.plot_importance(self.results_df, title, split_n)     ### disabled for the moment, since we store it as a dicto
+        if plot:
+            self.plot_importance(self.results_df, title, split_n)     ### disabled for the moment, since we store it as a dicto
     
     def measure_col(self, name:str):
         "Measures change after column shuffle"
@@ -216,20 +219,26 @@ def main(df, hyperp, store_dir, split:list=[0], title='subsets df1 - df2'):
     Feature_importance = {}
     for i in split:
         print(f"\n\n Calculating feature importance over split: {i}")
-        res = PermutationImportance(learn, df.iloc[splits[i]], split_n=i, bs=64, title=title)
+        res = PermutationImportance(learn, df.iloc[splits[i]], split_n=i, bs=64, title=title, plot=False)
         print('\n')
         print(tabulate(res.results_df, headers=res.results_df.columns))
         print(f"\n Results dicto: {res.results}")
         print(f"lenght of the splits: {len(splits[i])} \n")
-
         Feature_importance[str(i)] = res.results
-
     results['Feature_importance'] = Feature_importance
+
+    # fastinference - First let's import the interpretability module:
+    # https://walkwithfastai.com/SHAP#fastinference
+    print("Trying Shap explanation: ")
+    exp = ShapInterpretation(learn, df) # .iloc[:100])
+    print('1')
+    exp.summary_plot()    
 
     with open(join(store_dir, f"{base_file}.json"), 'w') as f:
         json.dump(results, f)
 
-        
+    return learn
+
 
 if __name__=='__main__':
 
@@ -246,15 +255,15 @@ if __name__=='__main__':
     # main(df_1_2_3_4, hyperp, join(root_dir, 'df_1_2_3_4'), split=[0, 1], title='df_1_2_3_4')
 
     ### 1. Entrenar con 1_2_3 vs 4.
-    main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
+    learn = main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
 
     # ### 2. Entrenar 2 vs 3_4
     # main(df_2_vs_3_4, hyperp, join(root_dir, 'df_2_vs_3_4'), split=[0, 1], title='df_2_vs_3_4')
 
     ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
-    main(df_1_4, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], title='df_1_4')
-    main(df_2_4, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
-    main(df_3_4, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
+    learn = main(df_1_4, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], title='df_1_4')
+    learn = main(df_2_4, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
+    learn = main(df_3_4, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
 
     # ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4   ...   # df_1_4  already done above
     # main(df_1_2, hyperp, join(root_dir, 'df_1_2'), split=[0, 1], title='df_1_2')
@@ -275,6 +284,8 @@ if __name__=='__main__':
 #     print(tabulate(res.results_df, headers=res.results_df.columns))
 
 
+
+    print("DO IT FOR DEUCE AND AD.?  SEE LINES 10 & 11")
 
 """
 TODO: Make Report Again
