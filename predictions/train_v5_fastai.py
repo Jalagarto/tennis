@@ -5,6 +5,10 @@ from os.path import join
 import os
 import numpy as np
 from fastinference.tabular import *  # Shap values
+######
+import logging
+logging.basicConfig(format='%(levelname)s: %(filename)s L:%(lineno)d  -  %(message)s', level=20)
+logger = logging.getLogger('tennis')   # logger.debug("yes") # logger.info("no")
 
 
 DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
@@ -33,9 +37,10 @@ df1,df2,df3,df4 = get_filtered_dfs(df)
 df_1_2_3_4 = pd.concat([df1, df2, df3, df4])
 
 ### 1. Entrenar con 1_2_3 vs 4.
-df1,df2,df3,df4 = get_filtered_dfs(df)
-df2.Efectividad = 1
-df3.Efectividad = 1
+df1,df2,df3,df4 = get_filtered_dfs(df)  # reinitialize dfs
+df1.Efectividad = '123'
+df2.Efectividad = '123' # 1
+df3.Efectividad = '123' # 1
 df_1_2_3_vs_4 = pd.concat([df1, df2, df3, df4])
 
 ### 2. Entrenar 2 vs 3_4
@@ -133,8 +138,10 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
 ### FEATURE IMPORTANCE:
 class PermutationImportance():
     "Calculate and plot the permutation importance"
-    def __init__(self, learn:Learner, df=None, split_n=0, bs=None, title='datasets', plot=True):
+    def __init__(self, learn:Learner, results_dir, df=None, split_n=0, bs=None, 
+            title='datasets', plot=True, save=False, store_dir=False):
         "Initialize with a test dataframe, a learner, and a metric"
+        self.results_dir = results_dir
         self.learn = learn
         self.df = df
         bs = bs if bs is not None else learn.dls.bs
@@ -148,7 +155,11 @@ class PermutationImportance():
         self.results = self.calc_feat_importance()
         self.results_df = self.ord_dic_to_df(self.results)
         if plot:
-            self.plot_importance(self.results_df, title, split_n)     ### disabled for the moment, since we store it as a dicto
+            self.plot_importance(self.results_df, title, split_n, plot=True)
+            ### disabled for the moment, since we store it as a dicto
+        if save:
+            self.plot_importance(self.results_df, title, split_n, plot=False, save=True)
+
     
     def measure_col(self, name:str):
         "Measures change after column shuffle"
@@ -160,6 +171,7 @@ class PermutationImportance():
         metric = self.learn.validate(dl=self.dl)[1]
         self.dl.items[col] = orig
         return metric
+
     
     def calc_feat_importance(self):
         "Calculates permutation importance by shuffling a column on a percentage scale"
@@ -174,27 +186,33 @@ class PermutationImportance():
             self.importance[key] = (base_error-value)/base_error #this can be adjusted
         return OrderedDict(sorted(self.importance.items(), key=lambda kv: kv[1], reverse=True))
     
+
     def ord_dic_to_df(self, dict:OrderedDict):
         return pd.DataFrame([[k, v] for k, v in dict.items()], columns=['feature', 'importance'])
     
-    def plot_importance(self, df:pd.DataFrame, title, split_n, limit=20, asc=False, **kwargs):
+
+    def plot_importance(self, df:pd.DataFrame, title, split_n, limit=20, asc=False, 
+                        plot=False, save=False, **kwargs):
         "Plot importance with an optional limit to how many variables shown"
         df_copy = df.copy()
         df_copy['feature'] = df_copy['feature'].str.slice(0,25)
-        df_copy = df_copy.sort_values(by='importance', ascending=asc)[:limit].sort_values(by='importance', 
-                                                                                        ascending=not(asc))
+        df_copy = df_copy.sort_values(by='importance', 
+                                      ascending=asc)[:limit].sort_values(by='importance', 
+                                                                         ascending=not(asc))
         ax = df_copy.plot.barh(x='feature', y='importance', sort_columns=True, **kwargs)
         for p in ax.patches:
             ax.annotate(f'{p.get_width():.4f}', ((p.get_width() * 1.005), p.get_y()  * 1.005))
         plt.xlabel('importance of each feature')
         splits_names = {0:'train', 1:'test'}
         plt.title(f"feature permutation importance  -  {title} - {splits_names[split_n]}")
-        ax.get_legend().remove()
-        # plt.show()
-        f = "/home/javier/tennis_results_2/trainings/"
-        os.makedirs(f, exist_ok=True)
-        plt.savefig(join(f, f"{title}_{splits_names[split_n]}.png"))
-
+        # ax.get_legend().remove()
+        if plot:
+            plt.show()
+        if save:
+            os.makedirs(self.results_dir, exist_ok=True)
+            fig_pth = join(self.results_dir, f"{title}_{splits_names[split_n]}.png")
+            logger.info(f"saving fig here: '{fig_pth}'")
+            plt.savefig(fig_pth)
 
 
 def main(df, hyperp, store_dir, split:list=[0], title='subsets df1 - df2'):
@@ -219,21 +237,27 @@ def main(df, hyperp, store_dir, split:list=[0], title='subsets df1 - df2'):
     Feature_importance = {}
     for i in split:
         print(f"\n\n Calculating feature importance over split: {i}")
-        res = PermutationImportance(learn, df.iloc[splits[i]], split_n=i, bs=64, title=title, plot=False)
+        res = PermutationImportance(learn, store_dir, 
+                df.iloc[splits[i]], split_n=i, bs=64, title=title, plot=False, save=True)
         print('\n')
         print(tabulate(res.results_df, headers=res.results_df.columns))
         print(f"\n Results dicto: {res.results}")
         print(f"lenght of the splits: {len(splits[i])} \n")
         Feature_importance[str(i)] = res.results
     results['Feature_importance'] = Feature_importance
+    plt.close()
 
     # fastinference - First let's import the interpretability module:
     # https://walkwithfastai.com/SHAP#fastinference
     print("Trying Shap explanation: ")
+    plt.close()  # delete old plt objects
     exp = ShapInterpretation(learn, df) # .iloc[:100])
     print('1')
-    exp.summary_plot()    
-
+    exp.summary_plot(show=False)
+    fig_title = f"{title}_SHAP.png"
+    plt.title(fig_title)
+    plt.savefig(join(store_dir, fig_title))
+    plt.close()
     with open(join(store_dir, f"{base_file}.json"), 'w') as f:
         json.dump(results, f)
 
@@ -283,9 +307,17 @@ if __name__=='__main__':
 #     print('\n')
 #     print(tabulate(res.results_df, headers=res.results_df.columns))
 
-
-
     print("DO IT FOR DEUCE AND AD.?  SEE LINES 10 & 11")
+
+
+    msg = """
+    Rafa says:
+        Bon día Sr Vives. En principio dijimos todos los primeros saques juntos. 
+        Si no es mucho jaleo y se pueden calcular por separado, podemos ver si sale 
+        algo interesante en cada uno de los lados...
+    """
+
+    logger.info(msg)
 
 """
 TODO: Make Report Again

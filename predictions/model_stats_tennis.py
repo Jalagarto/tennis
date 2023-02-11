@@ -282,31 +282,37 @@ def get_stats_table(df, features='all', percentiles=(0.1,0.9), save_dir=False):
     results = get_MLE(vars_dicto, df)
     df_results = pd.DataFrame(results,index=['MaxLikelihood'])
     stats_df = stats_df.append(df_results).round(3)
-    print(tabulate(stats_df, headers=stats_df.columns, tablefmt='fancy_grid'))
+    print()
+    logger.info(f"stats_df: ")
+    print(tabulate(stats_df, headers=stats_df.columns, tablefmt='fancy_grid'), "\n")
 
     results = get_MLE(vars_dicto, df1)
     df_results = pd.DataFrame(results,index=['MaxLikelihood'])
     stats_df_1 = df1.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
     stats_df_1 = stats_df_1.append(df_results).round(3)
-    print(tabulate(stats_df_1, headers=stats_df_1.columns, tablefmt='fancy_grid'))
+    logger.info(f"stats_df_1: ")
+    print(tabulate(stats_df_1, headers=stats_df_1.columns, tablefmt='fancy_grid'), "\n")
 
     results = get_MLE(vars_dicto, df2)
     df_results = pd.DataFrame(results,index=['MaxLikelihood'])
     stats_df_2 = df2.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
     stats_df_2 = stats_df_2.append(df_results).round(3)
-    print(tabulate(stats_df_2, headers=stats_df_2.columns, tablefmt='fancy_grid'))
+    logger.info(f"stats_df_2: ")
+    print(tabulate(stats_df_2, headers=stats_df_2.columns, tablefmt='fancy_grid'), "\n")
 
     results = get_MLE(vars_dicto, df3)
     df_results = pd.DataFrame(results,index=['MaxLikelihood'])
     stats_df_3 = df3.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
     stats_df_3 = stats_df_3.append(df_results).round(3)
-    print(tabulate(stats_df_3, headers=stats_df_3.columns, tablefmt='fancy_grid'))
+    logger.info(f"stats_df_2: ")
+    print(tabulate(stats_df_3, headers=stats_df_3.columns, tablefmt='fancy_grid'), "\n")
 
     results = get_MLE(vars_dicto, df4)
     df_results = pd.DataFrame(results,index=['MaxLikelihood'])
     stats_df_4 = df4.describe(percentiles=[.025,0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
     stats_df_4 = stats_df_4.append(df_results).round(3)
-    print(tabulate(stats_df_4, headers=stats_df_4.columns, tablefmt='fancy_grid'))
+    logger.info(f"stats_df_4: ")
+    print(tabulate(stats_df_4, headers=stats_df_4.columns, tablefmt='fancy_grid'), "\n")
 
     # percentile % seems to be the median, but we could add the mode if we feel like it
 
@@ -315,7 +321,9 @@ def get_stats_table(df, features='all', percentiles=(0.1,0.9), save_dir=False):
     # ...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
     if save_dir:
-        with pd.ExcelWriter(join(save_dir, 'stats.xlsx')) as writer:  
+        file_pth = join(save_dir, 'stats.xlsx')
+        logger.info(f"saving Stats here: '{}'")
+        with pd.ExcelWriter(file_pth) as writer:  
             stats_df.to_excel(writer, sheet_name='general stats')
             stats_df_1.to_excel(writer, sheet_name='stats_Efect_1')
             stats_df_2.to_excel(writer, sheet_name='stats_Efect_2')
@@ -338,11 +346,20 @@ if __name__=='__main__':
     plot_hist(df, feature=feature, fill_area=False, percentiles=(0.01,0.99), figsize=(15,10), 
         title_=feature, plot=True)
 
-    # stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
-    #         percentiles=(0.025,0.975), save_dir=save_dir)
+    stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
+            percentiles=(0.025,0.975), save_dir=save_dir)
 
     print('\nWE HAVE DONE IT FOR ALL DS. DO THE SAME FOR EACH SUBSET!!!!!!!!!!!!!!!!!!!!! df1, df2, df3, df4')
-    print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms") 
+    print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms. DONE!")   
 
 
     print("\nDO IT FOR DEUCE AND AD.?  SEE LINES 10 & 11 --> train_v5_fastai.py")   
+
+    print("~/pyenvs/tennis/lib/python3.8/site-packages/fastinference/tabular/shap/interp.py")
+
+    """
+    Rafa says:
+        Bon día Sr Vives. En principio dijimos todos los primeros saques juntos. 
+        Si no es mucho jaleo y se pueden calcular por separado, podemos ver si sale 
+        algo interesante en cada uno de los lados...
+    """
