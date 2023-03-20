@@ -11,13 +11,73 @@ logging.basicConfig(format='%(levelname)s: %(filename)s L:%(lineno)d  -  %(messa
 logger = logging.getLogger('tennis')   # logger.debug("yes") # logger.info("no")
 
 
-DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
-# DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+class load_data:
+    def __init__(self, DS_deuce_pth, DS_advance_pth, ds_type='both'):
+        """ ds_type: 'deuce', 'advance', 'both' """
+        self.ds_type=ds_type
+        if ds_type=='deuce':
+            self.df = pd.read_csv(DS_deuce_pth)
+        elif ds_type=='advance':
+            self.df = pd.read_csv(DS_advance_pth)
+        else:
+            df_D = pd.read_csv(DS_deuce_pth)
+            df_A = df = pd.read_csv(DS_advance_pth)
+            self.df = df_D.append(df_A).reset_index()
 
-### FASTAI:
-df = pd.read_csv(DS)
+        print("clases: ", pd.unique(self.df.Efectividad))
+        self.subsets()
+    
+    
+    def subsets(self): 
 
-print("clases: ", pd.unique(df.Efectividad))
+        ### 0. Baseline 1,2,3,4 all 4 classes
+        df1,df2,df3,df4 = get_filtered_dfs(self.df)
+        self.df_1_2_3_4 = pd.concat([df1, df2, df3, df4])
+
+        ### 1. Entrenar con 1_2_3 vs 4.
+        df1,df2,df3,df4 = get_filtered_dfs(self.df)  # reinitialize dfs
+        df1.Efectividad = '1,2,3'
+        df2.Efectividad = '1,2,3' # 1
+        df3.Efectividad = '1,2,3' # 1
+        self.df_1_2_3_vs_4 = pd.concat([df1, df2, df3, df4])
+
+        ### 2. Entrenar 2 vs 3_4
+        df1, df2, df3, df4 = get_filtered_dfs(self.df)  # refresh dfs
+        df3.Efectividad = '3,4'
+        df4.Efectividad = '3,4'
+        self.df_2_vs_3_4 = pd.concat([df2, df3, df4])
+
+        ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
+        df1, df2, df3, df4 = get_filtered_dfs(self.df)  # refresh dfs
+        self.df_1_4 = pd.concat([df1,df4])
+        self.df_2_4 = pd.concat([df2,df4])
+        self.df_3_4 = pd.concat([df3,df4])
+
+        ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4
+        self.df_1_2 = pd.concat([df1,df2])
+        self.df_1_3 = pd.concat([df1,df3])
+        # df_1_4 = pd.concat([df3,df4])  # already done
+
+        ### 5. Entrenar con 1_2 vs 3_4.
+        df1,df2,df3,df4 = get_filtered_dfs(self.df)
+        df1.Efectividad = '1,2'
+        df2.Efectividad = '1,2'
+        df3.Efectividad = '3,4'
+        df4.Efectividad = '3,4'
+        self.df_1_2_vs_3_4 = pd.concat([df1, df2, df3, df4])
+   
+        self.cat_names = ['DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T']
+        # self.cont_names = ['V(km/h)', '[YA]', 'ZA', 'Znet', 'TIME', 'difV', '&(grados)', 'ANG. IN', 'dLinea']   
+        self.cont_names = ['V(km/h)', 'TIME', '[YA]', 'ZA', 'Znet', 'difV', 'ANG. IN', '&(grados)']  # 'TIME', 'V(km/h)',  ##### ****** here!!!!*****
+        # self.cont_names = ['TIME', '[YA]', 'Znet', 'difV', '&(grados)', 'ANG. IN']  
+        ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), V(km/h) (keep TIME), & dLinea (keep GRADOS), 
+        # then delete also ... DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T, since it is a very bad variable
+        self.y_names = ['Efectividad']           
+        
+        # ***APScoreBinary:*** Average Precision for single-label binary classification problems  
+        # ***APScoreMulti:***  Average Precision for multi-label classification problems        
+
+
 
 def get_filtered_dfs(df):
     df1 = df[df.Efectividad==1].copy() # ace
@@ -28,60 +88,14 @@ def get_filtered_dfs(df):
     return df1, df2, df3, df4
 
 
-##################################################################################################################################
-###### Note that this should just be a class --> no time to code properly. Spend some time in the future to make it better #######
-##################################################################################################################################
-
-### 0. Baseline 1,2,3,4 all 4 classes
-df1,df2,df3,df4 = get_filtered_dfs(df)
-df_1_2_3_4 = pd.concat([df1, df2, df3, df4])
-
-### 1. Entrenar con 1_2_3 vs 4.
-df1,df2,df3,df4 = get_filtered_dfs(df)  # reinitialize dfs
-df1.Efectividad = '123'
-df2.Efectividad = '123' # 1
-df3.Efectividad = '123' # 1
-df_1_2_3_vs_4 = pd.concat([df1, df2, df3, df4])
-
-### 2. Entrenar 2 vs 3_4
-df1, df2, df3, df4 = get_filtered_dfs(df)  # refresh dfs
-df3.Efectividad = 4
-df_2_vs_3_4 = pd.concat([df2, df3, df4])
-
-### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
-df1, df2, df3, df4 = get_filtered_dfs(df)  # refresh dfs
-df_1_4 = pd.concat([df1,df4])
-df_2_4 = pd.concat([df2,df4])
-df_3_4 = pd.concat([df3,df4])
-
-### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4
-df_1_2 = pd.concat([df1,df2])
-df_1_3 = pd.concat([df1,df3])
-# df_1_4 = pd.concat([df3,df4])  # already done
-
-### 5. Entrenar con 1_2 vs 3_4.
-df1,df2,df3,df4 = get_filtered_dfs(df)
-df2.Efectividad = 1
-df3.Efectividad = 4
-df_1_2_vs_3_4 = pd.concat([df1, df2, df3, df4])
-
-
-# ***APScoreBinary:*** Average Precision for single-label binary classification problems  
-# ***APScoreMulti:***  Average Precision for multi-label classification problems
-
-cat_names = ['DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T']
-cont_names = ['V(km/h)', '[YA]', 'ZA', 'Znet', 'TIME', 'difV', '&(grados)', 'ANG. IN', 'dLinea']
-y_names = ['Efectividad']
-
-
-def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
+def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names, seed=0):
     """metric: metric to monitor at last training"""
     cat = Categorify()
     to = TabularPandas(df, cat, cat_names)
     cats = to.procs.categorify
     norm = Normalize()
     
-    splits = RandomSplitter(valid_pct=0.3)(range_of(df))
+    splits = RandomSplitter(valid_pct=0.3, seed=seed)(range_of(df))
     procs = [Categorify, FillMissing, Normalize]
     
     procs = [Categorify, FillMissing, Normalize]
@@ -93,7 +107,7 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names):
     dls = to.dataloaders(bs=1024)
     # learn = tabular_learner(dls, [256, 128, 128, 64], loss_func=FocalLossFlat(), metrics=[accuracy]) # loss_func=CrossEntropyLossFlat(),  256, 128, 128, 64
     # learn = tabular_learner(dls, [200,100], metrics=[accuracy, BalancedAccuracy(), Recall(), Precision(), APScoreMulti()]) # loss_func=CrossEntropyLossFlat(),  256, 128, 128, 64
-    learn = tabular_learner(dls, [200,100], metrics=[accuracy, BalancedAccuracy()]) # loss_func=CrossEntropyLossFlat(),  256, 128, 128, 64
+    learn = tabular_learner(dls, [256, 128, 128, 128, 64], loss_func=CrossEntropyLossFlat(), metrics=[accuracy, BalancedAccuracy()]) # loss_func=CrossEntropyLossFlat(),  256, 128, 128, 64
     
     ###
     # lr = 9e-3
@@ -215,20 +229,21 @@ class PermutationImportance():
             plt.savefig(fig_pth)
 
 
-def main(df, hyperp, store_dir, split:list=[0], title='subsets df1 - df2'):
+def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2', shap_subset='all', seed=0):
     """
     split has to be 0 or 1 values, where 0 means to calculate feat importance on training data,
         and 1 on Test Data
-    """
+    """    
     print("split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...")
     print("...and 1 on Test Data")
-    print(f"{'#'*50}")
+    print(f"{'#'*80}")
+    store_dir = join(store_dir,data.ds_type)
     print(f"creating new dir: {store_dir}")
     os.makedirs(store_dir, exist_ok=True)
     base_file = os.path.split(store_dir)[1]
     final_epochs, metric, patience = hyperp.final_epochs, hyperp.metric, hyperp.patience
     learn, interp, splits, classif_report_dicto, confusion_matrix_np = train(df, final_epochs, metric, 
-        patience, cat_names, cont_names, y_names)
+        patience, data.cat_names, data.cont_names, data.y_names, seed=seed)
 
     np.savetxt(join(store_dir, "confusion_matrix.csv"), np.around(confusion_matrix_np), delimiter=",", fmt="%d")   
 
@@ -251,7 +266,15 @@ def main(df, hyperp, store_dir, split:list=[0], title='subsets df1 - df2'):
     # https://walkwithfastai.com/SHAP#fastinference
     print("Trying Shap explanation: ")
     plt.close()  # delete old plt objects
-    exp = ShapInterpretation(learn, df) # .iloc[:100])
+    ### shap subset
+    if shap_subset=='all':
+        df_shap = df
+        print(f"using all points for plotting the shap summary")
+    else:
+        print(f"using {shap_subset} points for plotting the shap summary")
+        df_shap = df.iloc[:shap_subset]
+        
+    exp = ShapInterpretation(learn, df_shap) # .iloc[:100])
     print('1')
     exp.summary_plot(show=False)
     fig_title = f"{title}_SHAP.png"
@@ -264,30 +287,100 @@ def main(df, hyperp, store_dir, split:list=[0], title='subsets df1 - df2'):
     return learn
 
 
-if __name__=='__main__':
+def train_123_vs_4(data, root_dir, ds_type, shap_subset='all', seed=0, plot_correlation=False):
+    DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+    data = load_data(DS_deuce, DS_advance, ds_type=ds_type)
 
+#     ### 1. Entrenar con 1_2_3 vs 4.
+#     learn = main(data.df_1_2_3_vs_4, data, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], 
+#                 title='df_1_2_3_vs_4', shap_subset=shap_subset, seed=seed)
+# 
+#     ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
+    
+    if plot_correlation:
+        # plot correlation matrix (to test multicolinearity)
+        """
+        https://stats.stackexchange.com/questions/519306/why-important-features-does-not-correlated-with-target-variable/519312#519312
+        
+        1. Correlation measures the strength of a linear relationship. Age appears to have a weak correlation but, 
+            the relationship between age and the outcome may not be linear. See the wikipedia entry for correlation 
+            for some examples in which x and y are related but the correlation is 0.
+
+        2. I'm not a big fan of correlation. Feature importance via correlation seems to miss a lot of 
+            important variables. I demonstrate this in one of my blog posts. Correlation feature selection 
+            (which would be akin to what you're doing here) fails to result in superior performance over other 
+            methods across 2 real datasets and 1 simulated dataset. I have little confidence in its ability 
+            to successfully pick out good predictors (unless those predictors are linearly related to the 
+            outcome and not confounded by any other variables).  
+            
+            
+        https://datascience.stackexchange.com/questions/24452/in-supervised-learning-why-is-it-bad-to-have-correlated-features/24453#24453
+        
+        Numerical stability aside, prediction given by OLS model should not be affected by multicolinearity, 
+        as overall effect of predictor variables is not hurt by presence of multicolinearity. It is interpretation 
+        of effect of individual predictor variables that are not reliable when multicolinearity is present.  
+        """
+        import seaborn as sns
+        corr = data.df_1_4.corr()
+        sns.heatmap(corr, 
+                    xticklabels=corr.columns.values,
+                    yticklabels=corr.columns.values,
+                    annot=True,
+                    cmap="viridis")
+        plt.show()
+    
+    learn = main(data.df_1_4, data, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], 
+                title='df_1_4', shap_subset=shap_subset, seed=seed)
+#     learn = main(data.df_2_4, data, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], 
+#                 title='df_2_4', shap_subset=shap_subset, seed=seed)
+#     learn = main(data.df_3_4, data, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], 
+#                 title='df_3_4', shap_subset=shap_subset, seed=seed)    
+
+
+
+if __name__=='__main__':
+    import time
+    t1 = time.time()
     class hyperp:
-        final_epochs, metric, patience = 50, 'accuracy', 3 # 'balanced_accuracy_score', 3
+        final_epochs, metric, patience = 50, 'balanced_accuracy_score', 10 # 'balanced_accuracy_score', 3, # 'accuracy'
     # class hyperp0:
     #     final_epochs, metric, patience = 100, 'balanced_accuracy_score', 10 # 'balanced_accuracy_score', 3
 
     root_dir = '/home/javier/mis_proyectos/tennis_results/try2'
 
+    DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+    shap_subset='all' # 10 # 'all'
+    seed=2
+    for ds_type in ['deuce', 'advance', 'both']:
+        data = load_data(DS_deuce, DS_advance, ds_type=ds_type)
+        train_123_vs_4(data, root_dir, ds_type, shap_subset=shap_subset, seed=seed)
+        print(f"\n\n\n{'#'*80}\n{'#'*80}\n{'#'*80}\n\n\n")
+    
+    
+    t2 = time.time()
+    print(f"{round((t2-t1)/60, 2)}")
+    print("Bye")
+    
+    import sys
+    sys.exit(1)
+    
     # ### 0. Baseline 1,2,3,4 all 4 classes
     # df1,df2,df3,df4 = get_filtered_dfs(df)
     # df_1_2_3_4 = pd.concat([df1, df2, df3, df4])    
     # main(df_1_2_3_4, hyperp, join(root_dir, 'df_1_2_3_4'), split=[0, 1], title='df_1_2_3_4')
 
     ### 1. Entrenar con 1_2_3 vs 4.
-    learn = main(df_1_2_3_vs_4, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
+    learn = main(data.df_1_2_3_vs_4, data, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
 
     # ### 2. Entrenar 2 vs 3_4
     # main(df_2_vs_3_4, hyperp, join(root_dir, 'df_2_vs_3_4'), split=[0, 1], title='df_2_vs_3_4')
 
     ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
-    learn = main(df_1_4, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], title='df_1_4')
-    learn = main(df_2_4, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
-    learn = main(df_3_4, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
+    learn = main(data.df_1_4, data, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], title='df_1_4')
+    learn = main(data.df_2_4, data, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
+    learn = main(data.df_3_4, data, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
 
     # ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4   ...   # df_1_4  already done above
     # main(df_1_2, hyperp, join(root_dir, 'df_1_2'), split=[0, 1], title='df_1_2')
@@ -323,3 +416,5 @@ if __name__=='__main__':
 TODO: Make Report Again
 """
 ### analisis discriminante --> clustering?
+
+# python train_v5_fastai.py 2>&1 | tee /home/javier/mis_proyectos/tennis_results/try2/train.log
