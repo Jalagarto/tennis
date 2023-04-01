@@ -29,7 +29,6 @@ class load_data:
     
     
     def subsets(self): 
-
         ### 0. Baseline 1,2,3,4 all 4 classes
         df1,df2,df3,df4 = get_filtered_dfs(self.df)
         self.df_1_2_3_4 = pd.concat([df1, df2, df3, df4])
@@ -68,7 +67,7 @@ class load_data:
    
         self.cat_names = ['DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T']
         # self.cont_names = ['V(km/h)', '[YA]', 'ZA', 'Znet', 'TIME', 'difV', '&(grados)', 'ANG. IN', 'dLinea']   
-        self.cont_names = ['V(km/h)', 'TIME', '[YA]', 'ZA', 'Znet', 'difV', 'ANG. IN', '&(grados)']  # 'TIME', 'V(km/h)',  ##### ****** here!!!!*****
+        self.cont_names = ['TIME', '[YA]', 'ZA', 'Znet', 'difV', 'ANG. IN', 'dLinea']  # 'TIME', 'V(km/h)',  ##### ****** here!!!!*****
         # self.cont_names = ['TIME', '[YA]', 'Znet', 'difV', '&(grados)', 'ANG. IN']  
         ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), V(km/h) (keep TIME), & dLinea (keep GRADOS), 
         # then delete also ... DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T, since it is a very bad variable
@@ -360,7 +359,7 @@ if __name__=='__main__':
     
     
     t2 = time.time()
-    print(f"{round((t2-t1)/60, 2)}")
+    print(f"The E2E process took {round((t2-t1)/60, 2)} minutes.")
     print("Bye")
     
     import sys

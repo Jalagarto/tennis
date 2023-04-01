@@ -1,6 +1,4 @@
 """
-Adaptation to arsos_robots_ai/AI_recommendations/stats_resets.ipynb to runable script.
-
 The goal of this module is to understand the model:
     - data distribution, 
     - KDE, 
@@ -33,6 +31,7 @@ from scipy.stats import gaussian_kde
 from scipy.signal import find_peaks
 
 import matplotlib.pyplot as plt
+import os
 
 
 def MLE(X, sns_output, n, color='b', percentiles=(0.15,0.85)):
@@ -151,6 +150,10 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
         plt.show()
 
     if save_dir:
+        try:
+            os.makedirs(save_dir, exist_ok=True)
+        except Exception as e:
+            logger.info(e)        
         file_name = title_+'_'+'.png'
         plt.savefig(join(save_dir, file_name))
 

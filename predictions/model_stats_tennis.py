@@ -1,6 +1,4 @@
 """
-Adaptation to arsos_robots_ai/AI_recommendations/stats_resets.ipynb to runable script.
-
 The goal of this module is to understand the model:
     - data distribution, 
     - KDE, 
@@ -33,6 +31,7 @@ from scipy.stats import gaussian_kde
 from scipy.signal import find_peaks
 
 import matplotlib.pyplot as plt
+import os
 
 
 def MLE(X, sns_output, n, color='b', percentiles=(0.15,0.85)):
@@ -204,8 +203,9 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     qx4 = stats.percentileofscore(x1, Q1), stats.percentileofscore(x1, Q2)
     prob_ace_4 = round(qx4[1]-qx4[0], 2)
     
-    print(f"Estos valores de esta variable tienen estos valores para las diferentes efectividades")
+    print(f"Para los seleccionados percentiles de Eficiencia 1, estos son los valores de sus poblaciones, para cada subset: ")
     print(f"prob_Ef._1: {p2-p1}%,   prob_Ef._2: {prob_ace_2}%,   Ef._3: {prob_ace_3}%,   Ef_4: {prob_ace_4}%")
+    print(f"Interesa que minimice las densidades de población de cada subset")
 
     plt.xlabel(feature, fontsize=14)
     q1min, q2max = np.quantile(X_Stacked, (0.0005, 0.9995))
@@ -222,6 +222,10 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
         plt.show()
 
     if save_dir:
+        try:
+            os.makedirs(save_dir, exist_ok=True)
+        except Exception as e:
+            logger.info(e)
         file_name = title_+'_'+'.png'
         plt.savefig(join(save_dir, file_name))
 
@@ -321,8 +325,13 @@ def get_stats_table(df, features='all', percentiles=(0.1,0.9), save_dir=False):
     # ...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
     if save_dir:
+        try:
+            os.makedirs(save_dir, exist_ok=True)
+        except Exception as e:
+            logger.info(e)
+            
         file_pth = join(save_dir, 'stats.xlsx')
-        logger.info(f"saving Stats here: '{}'")
+        logger.info(f"saving Stats here: '{save_dir}'")
         with pd.ExcelWriter(file_pth) as writer:  
             stats_df.to_excel(writer, sheet_name='general stats')
             stats_df_1.to_excel(writer, sheet_name='stats_Efect_1')
@@ -336,18 +345,27 @@ def get_stats_table(df, features='all', percentiles=(0.1,0.9), save_dir=False):
 if __name__=='__main__':
 
     #########
-    DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
-    df = pd.read_csv(DS)
+    # DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    # df = pd.read_csv(DS)
+    
+    DS_deuce   = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+    df_deuce   = pd.read_csv(DS_deuce)
+    df_advance = pd.read_csv(DS_advance)
+    df = df_deuce.append(df_advance)
+    df = df.sample(frac=1).reset_index(drop=True)
+    # df = df_advance
+    # df = df_deuce
     #########
 
-    save_dir = '/home/javier/tennis_results_2'
-
     feature = 'ANG. IN'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
-    plot_hist(df, feature=feature, fill_area=False, percentiles=(0.01,0.99), figsize=(15,10), 
-        title_=feature, plot=True)
+    save_dir = f"/home/javier/TENNIS_FINAL_RESULTS/{feature}_BOTH"
+    
+    plot_hist(df, feature=feature, fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 
+        title_=feature, save_dir=save_dir, plot=False)
 
-    stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
-            percentiles=(0.025,0.975), save_dir=save_dir)
+    # stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
+    #         percentiles=(0.025,0.975), save_dir=save_dir)
 
     print('\nWE HAVE DONE IT FOR ALL DS. DO THE SAME FOR EACH SUBSET!!!!!!!!!!!!!!!!!!!!! df1, df2, df3, df4')
     print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms. DONE!")   
