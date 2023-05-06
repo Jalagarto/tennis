@@ -93,8 +93,9 @@ class load_data:
    
         self.cat_names = ['DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T']
         # self.cont_names = ['V(km/h)', '[YA]', 'ZA', 'Znet', 'TIME', 'difV', '&(grados)', 'ANG. IN', 'dLinea']   
-        self.cont_names = ['TIME', '[YA]', 'ZA', 'Znet', 'difV', 'ANG. IN', 'dLinea']  # 'TIME', 'V(km/h)',  ##### ****** here!!!!*****
-        # self.cont_names = ['TIME', '[YA]', 'Znet', 'difV', '&(grados)', 'ANG. IN']  
+        # self.cont_names = ['TIME', '[YA]', 'ZA', 'Znet', 'difV', 'ANG. IN', 'dLinea']  # 'TIME', 'V(km/h)',  ##### ****** here!!!!*****
+        # self.cont_names = ['V(km/h)', '[YA]', 'Znet', 'difV', '&(grados)', 'ANG. IN']
+        self.cont_names = ['V(km/h)', '[YA]', 'Znet', 'difV', 'dLinea', 'ANG. IN']  
         ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), V(km/h) (keep TIME), & dLinea (keep GRADOS), 
         # then delete also ... DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T, since it is a very bad variable
         self.y_names = ['Efectividad']           
@@ -124,7 +125,7 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names, se
     procs = [Categorify, FillMissing, Normalize]
     
     procs = [Categorify, FillMissing, Normalize]
-    y_names = 'Efectividad'
+    y_names = y_names
     y_block = CategoryBlock()
     to = TabularPandas(df, procs=procs, cat_names=cat_names, cont_names=cont_names,
                        y_names=y_names, y_block=y_block, splits=splits)
@@ -172,7 +173,8 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names, se
     classif_report_dicto = interp.print_classification_report()
     confusion_matrix = interp.confusion_matrix()
     print("### Confusion Matrix: ###\n", confusion_matrix)
-    return learn, interp, splits, classif_report_dicto, confusion_matrix
+    
+    return learn, interp, splits, classif_report_dicto, confusion_matrix, procs, y_block
 
 
 def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2', shap_subset='all', seed=0):
@@ -188,55 +190,46 @@ def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2',
     os.makedirs(store_dir, exist_ok=True)
     base_file = os.path.split(store_dir)[1]
     final_epochs, metric, patience = hyperp.final_epochs, hyperp.metric, hyperp.patience
-    learn, interp, splits, classif_report_dicto, confusion_matrix_np = train(df, final_epochs, metric, 
+    learn, interp, splits, classif_report_dicto, confusion_matrix_np, procs, y_block = train(df, final_epochs, metric, 
         patience, data.cat_names, data.cont_names, data.y_names, seed=seed)
 
     np.savetxt(join(store_dir, "confusion_matrix.csv"), np.around(confusion_matrix_np), delimiter=",", fmt="%d")   
 
     results = {'classif_report': classif_report_dicto}
 
-    return learn
+    return learn, procs, y_block
 
 
-def train_123_vs_4(data, root_dir, ds_type, shap_subset='all', seed=0, plot_correlation=False):
-    DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
-    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
-    data = load_data(DS_deuce, DS_advance, ds_type=ds_type)
+def train_1_vs_4(data, root_dir, ds_type, shap_subset='all', seed=0, plot_correlation=False):
+    # DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    # DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+    # data = load_data(DS_deuce, DS_advance, ds_type=ds_type)
         
-    learn = main(data.df_1_4, data, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], 
+    learn, procs, y_block = main(data.df_1_4, data, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], 
                 title='df_1_4', shap_subset=shap_subset, seed=seed)
     learn.save(f"model_1vs4_{ds_type}")
-    return learn
+    return learn, procs, y_block
 
 
-def oversample(df):
-    breakpoint()
-    df2 = df.groupby(['Efectividad']).Efectividad.agg(['count'])
-    df2['class %'] = round(df2['count']/len(df)*100, 1)
-    # UNFINISHED!
-    ### get which var has less samples
-    
-    ### augment by adding random gausian noise
-    
-    return df
 
-
-def predict(learn, ds):
+def predict(learn, df, procs, y_block, cat_names, cont_names,y_names):
     """
     https://stackoverflow.com/questions/65561794/fastai-tabular-model-how-to-get-predictions-for-new-data
     
     model.get_preds is used get batch prediction on unseen data. You just need to apply the same 
     transformations on this new data as you did for training data.
     """
-    learn.get_preds() # used get batch prediction on unseen data
-    
+    # learn.get_preds() # used get batch prediction on unseen data
     # dl = model.dls.test_dl(data.df_1_4, bs=64) # apply transforms
-    dl = learn.dls.test_dl(data.df_1_4, bs=64) # apply transforms
-    preds,  _ = learn.get_preds(dl=dl) # get prediction
+    dl = learn.dls.test_dl(df)
+    preds_prob, pred_class = learn.get_preds(dl=dl) # get prediction     # uncommend ? this used to work
+    
+    return preds_prob, pred_class
 
 
 
 if __name__=='__main__':
+    from simulations import ds_gen
     import time
     t1 = time.time()
     class hyperp:
@@ -248,16 +241,51 @@ if __name__=='__main__':
     DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
     shap_subset='all' # 10 # 'all'
     
+    feature =  'V(km/h)' # 'dLinea'   #  '&(grados)'
+    min_val, max_val = 187, 220 # 0.6, 1  #  5.7, 8.7
+    
+    logger.info(f"Remember to change also 'self.cont_names' in line 98 approx.!!!!!!!!!!!!!!!!!!!!!!")
+    
     for ds_type in ['deuce', 'advance', 'both']:
-        data = load_data(DS_deuce, DS_advance, ds_type=ds_type)
-        learn = train_123_vs_4(data, root_dir, ds_type, shap_subset=shap_subset, seed=seed)
-        print(f"\n\n\n{'#'*80}\n{'#'*80}\n{'#'*80}\n\n\n")
-        print(len(learn.dls.valid_ds))
-        print(len(learn.dls.train_ds))   
-    
-    
+        ### Load Data
+        data = load_data(DS_deuce, DS_advance, ds_type=ds_type)        
+        
+        ### clean some correlated feats
+        print("\n\n\nno se pq PERO AL BORRAR ESTAS COLUMNAS FUNCIONA BIEN! SUPONGO QUE HA DE COINCIDIR???????? ... CHECK CONT_NAMES\n\n\n")
+        data.df_1_4.drop(columns=['ZA', 'TIME', '&(grados)'], inplace=True)
+        
+        ### Train
+        learn, procs, y_block = train_1_vs_4(data, root_dir, ds_type, shap_subset=shap_subset, seed=seed)
+        print(f"\n{'#'*80}\n{'#'*80}\n{'#'*80}\n\n\n")
+        
+        ### synthetic ds
+        x = data.df_1_4[feature].values
+        preds_prob, pred_class = predict(learn, data.df_1_4, procs, y_block, data.cat_names, data.cont_names,data.y_names)
+        preds = preds_prob[:,0].round()
+        print('eficiencia=1: ', 100*preds.sum()/len(preds),'%')
+        print(preds)
+        print(preds.sum(), '/', len(preds), '\n')
+        # print(learn.predict(data.df_1_4.iloc[2]))  # one prediction
+        x = ds_gen.replace_random(x, min_val, max_val)
+        data.df_1_4[feature] = x
+        
+        ### Prediction on new DS:
+        preds_prob, pred_class = predict(learn, data.df_1_4, procs, y_block, data.cat_names, data.cont_names,data.y_names)
+        preds = preds_prob[:,0].round()
+        print('eficiencia=1: ', 100*preds.sum()/len(preds),'%')
+        print(preds)
+        print(preds.sum(), '/', len(preds))
+        
+        print(learn.predict(data.df_1_4.iloc[2]))  # one prediction
+        print(preds_prob)
+        
+        print("\n He cambiado el 0 por 1 para que quede algo más claro. Antes: 0=1 y 1=4, ahora 1=1 y 0=4\n")
+        
+        
     t2 = time.time()
     print(f"The E2E process took {round((t2-t1)/60, 2)} minutes.")
+    
+    logger.info(f"Did you Remember to change also 'self.cont_names' in line 98 approx.???!!!!")
     print("Bye")
 
 

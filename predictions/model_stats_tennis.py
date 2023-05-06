@@ -362,7 +362,7 @@ if __name__=='__main__':
     save_dir = f"/home/javier/TENNIS_FINAL_RESULTS/{feature}_BOTH"
     
     plot_hist(df, feature=feature, fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 
-        title_=feature, save_dir=save_dir, plot=False)
+        title_=feature, save_dir=False, plot=True)
 
     # stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
     #         percentiles=(0.025,0.975), save_dir=save_dir)
