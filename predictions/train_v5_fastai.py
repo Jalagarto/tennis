@@ -48,7 +48,14 @@ class load_data:
 
         ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
         df1, df2, df3, df4 = get_filtered_dfs(self.df)  # refresh dfs
-        self.df_1_4 = pd.concat([df1,df4])
+        
+        logger.info("This is wrong. Oversampling should only be applied to the training data")
+        # ---------- oversample df1!!! hardcoded to do this faster --------- #
+        df1_oversampled = oversample(df1, std_factor=0.0)
+        df1_oversampled = oversample(df1_oversampled, std_factor=0.0)
+        self.df_1_4 = pd.concat([df1_oversampled,df4])  ### OVERSAMPLING df1, since df4 is much bigger!
+        # ------------------------------------------------------------------ #
+        # self.df_1_4 = pd.concat([df1,df4])
         self.df_2_4 = pd.concat([df2,df4])
         self.df_3_4 = pd.concat([df3,df4])
 
@@ -65,12 +72,16 @@ class load_data:
         df4.Efectividad = '3,4'
         self.df_1_2_vs_3_4 = pd.concat([df1, df2, df3, df4])
    
-        self.cat_names = ['DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T']
-        # self.cont_names = ['V(km/h)', '[YA]', 'ZA', 'Znet', 'TIME', 'difV', '&(grados)', 'ANG. IN', 'dLinea']   
-        self.cont_names = ['TIME', '[YA]', 'ZA', 'Znet', 'difV', 'ANG. IN', 'dLinea']  # 'TIME', 'V(km/h)',  ##### ****** here!!!!*****
-        # self.cont_names = ['TIME', '[YA]', 'Znet', 'difV', '&(grados)', 'ANG. IN']  
-        ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), V(km/h) (keep TIME), & dLinea (keep GRADOS), 
-        # then delete also ... DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T, since it is a very bad variable
+        self.cat_names = ['Direction (W,B,T)']
+        # self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'ZA', 'Net clearance (m)', 'TIME', 'Loss of speed (km h-1)', 'Serve angle (deg)', 'Vertical projection angle (deg)', 'dL (m)']   
+        # self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'ZA', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Vertical projection angle (deg)', 'dL (m)']  # 'TIME', 'Speed (Km h-1)',  ##### ****** here!!!!*****
+        
+        # breakpoint()   # important here to select one or the other!
+        self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Vertical projection angle (deg)', 'Serve angle (deg)']  
+        # self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Vertical projection angle (deg)', 'dL (m)']
+        
+        ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), delete TIME, keep V(km/h, & dL (m) (keep Serve angle (deg)), 
+        # then delete also ... Direction (W,B,T), since it is a very bad variable
         self.y_names = ['Efectividad']           
         
         # ***APScoreBinary:*** Average Precision for single-label binary classification problems  
@@ -87,8 +98,31 @@ def get_filtered_dfs(df):
     return df1, df2, df3, df4
 
 
+def oversample(df, target_col='Efectividad', std_factor=0.01):
+    """
+    Note: the oversampling method improves the predictions 
+        but seems to spoil the feature importance algorithm when using std_factor>0
+        I think it is not smart to do it linear, we should add gaussian noise instead.
+        So for the moment just duplicate the samples of df1, which has less data    
+    """
+    # coefficients = np.random.random(len(df))*std_factor
+    # coefficients = coefficients.reshape(len(df),1)
+    # new_array = coefficients*df.values+df.values
+    mean_target_col = df[target_col].mean()
+    noise_coefficients = np.random.normal(loc=0.0, scale=std_factor, size=df.shape)
+    new_array = noise_coefficients*df.values+df.values
+    new_df = pd.DataFrame(new_array, columns = df.columns)
+    new_df[target_col] = mean_target_col
+    df = df.append(new_df)
+    # df = df.sample(frac=1).reset_index(drop=True)
+    logger.info(f"by adding a basic data augmentation we have improved by almost 2% the accuracy")
+    return df
+
+
 def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names, seed=0):
     """metric: metric to monitor at last training"""
+    
+    ### Define PREPROCESSING STEPS
     cat = Categorify()
     to = TabularPandas(df, cat, cat_names)
     cats = to.procs.categorify
@@ -103,7 +137,9 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names, se
     to = TabularPandas(df, procs=procs, cat_names=cat_names, cont_names=cont_names,
                        y_names=y_names, y_block=y_block, splits=splits)
     
+    ### LOAD DATA Efficiently (using batches in data loaders)
     dls = to.dataloaders(bs=1024)
+    
     # learn = tabular_learner(dls, [256, 128, 128, 64], loss_func=FocalLossFlat(), metrics=[accuracy]) # loss_func=CrossEntropyLossFlat(),  256, 128, 128, 64
     # learn = tabular_learner(dls, [200,100], metrics=[accuracy, BalancedAccuracy(), Recall(), Precision(), APScoreMulti()]) # loss_func=CrossEntropyLossFlat(),  256, 128, 128, 64
     learn = tabular_learner(dls, [256, 128, 128, 128, 64], loss_func=CrossEntropyLossFlat(), metrics=[accuracy, BalancedAccuracy()]) # loss_func=CrossEntropyLossFlat(),  256, 128, 128, 64
@@ -152,7 +188,7 @@ def train(df, final_epochs, metric, patience, cat_names, cont_names, y_names, se
 class PermutationImportance():
     "Calculate and plot the permutation importance"
     def __init__(self, learn:Learner, results_dir, df=None, split_n=0, bs=None, 
-            title='datasets', plot=True, save=False, store_dir=False):
+            title=False, plot=True, save=False, store_dir=False):  # title='datasets'
         "Initialize with a test dataframe, a learner, and a metric"
         self.results_dir = results_dir
         self.learn = learn
@@ -217,7 +253,8 @@ class PermutationImportance():
             ax.annotate(f'{p.get_width():.4f}', ((p.get_width() * 1.005), p.get_y()  * 1.005))
         plt.xlabel('importance of each feature')
         splits_names = {0:'train', 1:'test'}
-        plt.title(f"feature permutation importance  -  {title} - {splits_names[split_n]}")
+        if title:
+            plt.title(f"feature permutation importance  -  {title} - {splits_names[split_n]}")
         # ax.get_legend().remove()
         if plot:
             plt.show()
@@ -228,15 +265,20 @@ class PermutationImportance():
             plt.savefig(fig_pth)
 
 
-def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2', shap_subset='all', seed=0):
+def main(df, data, hyperp, store_dir, split:list=[0], title=False, shap_subset='all', seed=0):
     """
     split has to be 0 or 1 values, where 0 means to calculate feat importance on training data,
         and 1 on Test Data
+    title='subsets df1 - df2'
     """    
     print("split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...")
     print("...and 1 on Test Data")
     print(f"{'#'*80}")
-    store_dir = join(store_dir,data.ds_type)
+    try:
+        store_dir = join(store_dir,data.ds_type)
+    except:
+        print('careful, when title is false the dir to store data is just improvised')
+        store_dir = join('~/mis_proyectos', 'no_title_results')
     print(f"creating new dir: {store_dir}")
     os.makedirs(store_dir, exist_ok=True)
     base_file = os.path.split(store_dir)[1]
@@ -252,7 +294,7 @@ def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2',
     for i in split:
         print(f"\n\n Calculating feature importance over split: {i}")
         res = PermutationImportance(learn, store_dir, 
-                df.iloc[splits[i]], split_n=i, bs=64, title=title, plot=False, save=True)
+                df.iloc[splits[i]], split_n=i, bs=64, title=title, plot=True, save=True)
         print('\n')
         print(tabulate(res.results_df, headers=res.results_df.columns))
         print(f"\n Results dicto: {res.results}")
@@ -273,12 +315,17 @@ def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2',
         print(f"using {shap_subset} points for plotting the shap summary")
         df_shap = df.iloc[:shap_subset]
         
-    exp = ShapInterpretation(learn, df_shap) # .iloc[:100])
+    exp = ShapInterpretation(learn, df_shap) # .iloc[:1000])
     print('1')
     exp.summary_plot(show=False)
+    plt.show()
     fig_title = f"{title}_SHAP.png"
-    plt.title(fig_title)
-    plt.savefig(join(store_dir, fig_title))
+    if title:
+        plt.title(fig_title)
+        plt.savefig(join(store_dir, fig_title))
+    else:
+        plt.savefig(join(store_dir, 'shap_summary_plot'))
+        
     plt.close()
     with open(join(store_dir, f"{base_file}.json"), 'w') as f:
         json.dump(results, f)
@@ -286,9 +333,9 @@ def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2',
     return learn
 
 
-def train_123_vs_4(data, root_dir, ds_type, shap_subset='all', seed=0, plot_correlation=False):
-    DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
-    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+def train_1_vs_4(data, csvs_dict:dict, root_dir, ds_type, shap_subset='all', seed=0, plot_correlation=False):
+    csvs_dict['deuce'] = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    csvs_dict['advance'] = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
     data = load_data(DS_deuce, DS_advance, ds_type=ds_type)
 
 #     ### 1. Entrenar con 1_2_3 vs 4.
@@ -329,8 +376,8 @@ def train_123_vs_4(data, root_dir, ds_type, shap_subset='all', seed=0, plot_corr
                     cmap="viridis")
         plt.show()
     
-    learn = main(data.df_1_4, data, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], 
-                title='df_1_4', shap_subset=shap_subset, seed=seed)
+    learn = main(data.df_1_4, data, hyperp, False, split=[0, 1], 
+                title=False, shap_subset=shap_subset, seed=seed)
 #     learn = main(data.df_2_4, data, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], 
 #                 title='df_2_4', shap_subset=shap_subset, seed=seed)
 #     learn = main(data.df_3_4, data, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], 
@@ -348,13 +395,22 @@ if __name__=='__main__':
 
     root_dir = '/home/javier/mis_proyectos/tennis_results/try2'
 
+    ### MEN
     DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
     DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
-    shap_subset='all' # 10 # 'all'
-    seed=2
+
+    ### WOMEN
+    # DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/women_deuce_filtered.csv'
+    # DS_advance = '/home/javier/mis_proyectos/calculos_Fer/women_advance_filtered.csv'
+    
+    csvs_dict = {'deuce': DS_deuce, 'advance': DS_advance}
+    
+    shap_subset = 'all' # 10 # 'all'
+    seed=1
     for ds_type in ['deuce', 'advance', 'both']:
+        print('\n\n -----------  ds_type: ------------',  ds_type, '\n\n')
         data = load_data(DS_deuce, DS_advance, ds_type=ds_type)
-        train_123_vs_4(data, root_dir, ds_type, shap_subset=shap_subset, seed=seed)
+        train_1_vs_4(data, csvs_dict, root_dir, ds_type, shap_subset=shap_subset, seed=seed)
         print(f"\n\n\n{'#'*80}\n{'#'*80}\n{'#'*80}\n\n\n")
     
     
@@ -371,15 +427,15 @@ if __name__=='__main__':
     # main(df_1_2_3_4, hyperp, join(root_dir, 'df_1_2_3_4'), split=[0, 1], title='df_1_2_3_4')
 
     ### 1. Entrenar con 1_2_3 vs 4.
-    learn = main(data.df_1_2_3_vs_4, data, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
+    # learn = main(data.df_1_2_3_vs_4, data, hyperp, join(root_dir, 'df_1_2_3_vs_4'), split=[0, 1], title='df_1_2_3_vs_4')
 
     # ### 2. Entrenar 2 vs 3_4
     # main(df_2_vs_3_4, hyperp, join(root_dir, 'df_2_vs_3_4'), split=[0, 1], title='df_2_vs_3_4')
 
     ### 3. 1vs4,  2vs4, 3vs4  (I.e, 4 vs all)
-    learn = main(data.df_1_4, data, hyperp, join(root_dir, 'df_1_4'), split=[0, 1], title='df_1_4')
-    learn = main(data.df_2_4, data, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
-    learn = main(data.df_3_4, data, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
+    learn = main(data.df_1_4, data, hyperp, False, split=[0, 1], title=False)# title='df_1_4')
+    # learn = main(data.df_2_4, data, hyperp, join(root_dir, 'df_2_4'), split=[0, 1], title='df_2_4')
+    # learn = main(data.df_3_4, data, hyperp, join(root_dir, 'df_3_4'), split=[0, 1], title='df_3_4')
 
     # ### 4. 1vs all --> igual que el pto 3  -->  1vs2, 1vs3, 1vs4   ...   # df_1_4  already done above
     # main(df_1_2, hyperp, join(root_dir, 'df_1_2'), split=[0, 1], title='df_1_2')
@@ -393,7 +449,7 @@ if __name__=='__main__':
 #     learn, interp, splits = train(df_2_vs_3_4, final_epochs, metric, patience, cat_names, cont_names, y_names)
 # 
 #     y_val = df_2_vs_3_4.iloc[splits[0]].Efectividad.values
-#     X_val = df_2_vs_3_4.iloc[splits[0]][['DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T','V(km/h)','[YA]','ZA','Znet','TIME','difV','&(grados)','ANG. IN','dLinea']].values            
+#     X_val = df_2_vs_3_4.iloc[splits[0]][['Direction (W,B,T)','Speed (Km h-1)','Position (m)','ZA','Net clearance (m)','TIME','Loss of speed (km h-1)','Serve angle (deg)','Vertical projection angle (deg)','dL (m)']].values
 # 
 #     res = PermutationImportance(learn, df_2_vs_3_4.iloc[splits[0]], bs=64)
 #     print('\n')
@@ -417,3 +473,10 @@ TODO: Make Report Again
 ### analisis discriminante --> clustering?
 
 # python train_v5_fastai.py 2>&1 | tee /home/javier/mis_proyectos/tennis_results/try2/train.log
+
+
+"""
+self.cat_names = ['Direction (W,B,T)']
+self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Serve angle (deg)', 'Vertical projection angle (deg)']
+# self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'dL (m)', 'Vertical projection angle (deg)']
+"""

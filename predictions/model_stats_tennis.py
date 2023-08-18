@@ -348,17 +348,27 @@ if __name__=='__main__':
     # DS = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
     # df = pd.read_csv(DS)
     
-    DS_deuce   = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
-    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+    #################################################################################################################
+    ### MEN
+    # DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    # DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+
+    ### WOMEN
+    DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/women_deuce_filtered.csv'
+    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/women_advance_filtered.csv'
+    #################################################################################################################
+    
     df_deuce   = pd.read_csv(DS_deuce)
     df_advance = pd.read_csv(DS_advance)
     df = df_deuce.append(df_advance)
     df = df.sample(frac=1).reset_index(drop=True)
     # df = df_advance
-    # df = df_deuce
+    # df = df_deuce     
     #########
 
-    feature = 'ANG. IN'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
+
+
+    feature = 'V(km/h)'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
     save_dir = f"/home/javier/TENNIS_FINAL_RESULTS/{feature}_BOTH"
     
     plot_hist(df, feature=feature, fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 

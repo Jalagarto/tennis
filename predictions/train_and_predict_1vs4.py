@@ -29,8 +29,8 @@ class load_data:
         self.subsets()
     
     
-    def oversample(self, df, target_col='Efectividad', std_factor=0.1):
-        coefficients = np.random.random(len(df))*0.01
+    def oversample(self, df, target_col='Efectividad', std_factor=0.01):
+        coefficients = np.random.random(len(df))*std_factor
         coefficients = coefficients.reshape(len(df),1)
         mean_target_col = df[target_col].mean()
         new_array = coefficients*df.values+df.values
@@ -67,7 +67,7 @@ class load_data:
         df1, df2, df3, df4 = get_filtered_dfs(self.df)  # refresh dfs
         # self.df_1_4 = pd.concat([df1,df4])
         ### oversample df1!!! hardcoded to do this faster
-        df1_oversampled = self.oversample(df1)
+        df1_oversampled = self.oversample(df1, std_factor=0)
         self.df_1_4 = pd.concat([df1_oversampled,df4])
         self.df_2_4 = pd.concat([df2,df4])
         self.df_3_4 = pd.concat([df3,df4])
@@ -91,14 +91,13 @@ class load_data:
         self.df_1_2_vs_3_4 = pd.concat([df1, df2, df3, df4])
         self.df_1_2_vs_3_4 = self.df_1_2_vs_3_4.sample(frac=1).reset_index(drop=True)    # shuffle
    
-        self.cat_names = ['DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T']
-        # self.cont_names = ['V(km/h)', '[YA]', 'ZA', 'Znet', 'TIME', 'difV', '&(grados)', 'ANG. IN', 'dLinea']   
-        # self.cont_names = ['TIME', '[YA]', 'ZA', 'Znet', 'difV', 'ANG. IN', 'dLinea']  # 'TIME', 'V(km/h)',  ##### ****** here!!!!*****
-        # self.cont_names = ['V(km/h)', '[YA]', 'Znet', 'difV', '&(grados)', 'ANG. IN']
-        self.cont_names = ['V(km/h)', '[YA]', 'Znet', 'difV', 'dLinea', 'ANG. IN']  
-        ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), V(km/h) (keep TIME), & dLinea (keep GRADOS), 
-        # then delete also ... DIRECCIÓN:1 abierto;2 al cuerpo;3 a la T, since it is a very bad variable
-        self.y_names = ['Efectividad']           
+        self.cat_names = ['Direction (W,B,T)']
+        self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Serve angle (deg)', 'Vertical projection angle (deg)']
+        # self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'dL (m)', 'Vertical projection angle (deg)']
+        
+        ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), Speed (Km h-1) (keep TIME), & dL (m) (keep GRADOS), 
+        # then delete also ... Direction (W,B,T), since it is a very bad variable
+        self.y_names = ['Efectividad']  
         
         # ***APScoreBinary:*** Average Precision for single-label binary classification problems  
         # ***APScoreMulti:***  Average Precision for multi-label classification problems        
@@ -185,7 +184,7 @@ def main(df, data, hyperp, store_dir, split:list=[0], title='subsets df1 - df2',
     print("split has to be 0 or 1 values, where 0 means to calculate feat importance on training data, ...")
     print("...and 1 on Test Data")
     print(f"{'#'*80}")
-    store_dir = join(store_dir,data.ds_type)
+    store_dir = join(store_dir, data.ds_type)
     print(f"creating new dir: {store_dir}")
     os.makedirs(store_dir, exist_ok=True)
     base_file = os.path.split(store_dir)[1]
@@ -237,12 +236,19 @@ if __name__=='__main__':
     seed = 1
     root_dir = '/home/javier/mis_proyectos/tennis_results/try2'
 
+    #################################################################################################################
+    ### MEN
     DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
     DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+
+    ### WOMEN
+    # DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/women_deuce_filtered.csv'
+    # DS_advance = '/home/javier/mis_proyectos/calculos_Fer/women_advance_filtered.csv'
+    #################################################################################################################
     shap_subset='all' # 10 # 'all'
     
-    feature =  'V(km/h)' # 'dLinea'   #  '&(grados)'
-    min_val, max_val = 187, 220 # 0.6, 1  #  5.7, 8.7
+    feature =  'Speed (Km h-1)' # 'Speed (Km h-1)' # 'dL (m)'   #  'Serve angle (deg)'
+    min_val, max_val = 155.0, 200.0 # 187, 220 # 0.6, 1  #  5.7, 8.7
     
     logger.info(f"Remember to change also 'self.cont_names' in line 98 approx.!!!!!!!!!!!!!!!!!!!!!!")
     
@@ -251,8 +257,9 @@ if __name__=='__main__':
         data = load_data(DS_deuce, DS_advance, ds_type=ds_type)        
         
         ### clean some correlated feats
-        print("\n\n\nno se pq PERO AL BORRAR ESTAS COLUMNAS FUNCIONA BIEN! SUPONGO QUE HA DE COINCIDIR???????? ... CHECK CONT_NAMES\n\n\n")
-        data.df_1_4.drop(columns=['ZA', 'TIME', '&(grados)'], inplace=True)
+        print("\n\n\nno se pq PERO AL BORRAR ESTAS COLUMNAS FUNCIONA BIEN! SUPONGO QUE HA DE COINCIDIR???????? ... CHECK CONT_NAMES\n\n\n")        
+        data.df_1_4.drop(columns=['ZA', 'TIME', 'dL (m)'], inplace=True)
+        # data.df_1_4.drop(columns=['ZA', 'TIME', 'Serve angle (deg)'], inplace=True)
         
         ### Train
         learn, procs, y_block = train_1_vs_4(data, root_dir, ds_type, shap_subset=shap_subset, seed=seed)
