@@ -77,7 +77,7 @@ class load_data:
         # self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'ZA', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Vertical projection angle (deg)', 'dL (m)']  # 'TIME', 'Speed (Km h-1)',  ##### ****** here!!!!*****
         
         # breakpoint()   # important here to select one or the other!
-        self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Vertical projection angle (deg)', 'Serve angle (deg)']  
+        self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Vertical projection angle (deg)', 'Serve angle (deg)', 'dL (m)'] 
         # self.cont_names = ['Speed (Km h-1)', 'Position (m)', 'Net clearance (m)', 'Loss of speed (km h-1)', 'Vertical projection angle (deg)', 'dL (m)']
         
         ### from correlation matriz: delete --> 'ZA' (keep ANG.IN), delete TIME, keep V(km/h, & dL (m) (keep Serve angle (deg)), 
@@ -314,10 +314,11 @@ def main(df, data, hyperp, store_dir, split:list=[0], title=False, shap_subset='
     else:
         print(f"using {shap_subset} points for plotting the shap summary")
         df_shap = df.iloc[:shap_subset]
-        
+    
     exp = ShapInterpretation(learn, df_shap) # .iloc[:1000])
     print('1')
     exp.summary_plot(show=False)
+    plt.legend()
     plt.show()
     fig_title = f"{title}_SHAP.png"
     if title:
