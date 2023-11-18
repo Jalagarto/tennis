@@ -84,7 +84,6 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     plot: bool  [True, False]
     """
     vars_dicto = {k:v for v,k in enumerate(df.columns)}
-
     X_Stacked = df.values[:, vars_dicto[feature]]
     
     df1 = df[df.Efectividad==1][feature]
@@ -141,7 +140,8 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
 
     fig, ax1 = plt.subplots(figsize=figsize)
 
-    sns_output = sns.histplot((df1, df2, df3, df4), kde=True, stat='percent', alpha=0.00, edgecolor='k', lw=0.0)
+    # sns_output = sns.histplot((df1, df2, df3, df4), kde=True, stat='percent', alpha=0.00, edgecolor='k', lw=0.0)
+    sns_output = sns.histplot((df1, df4), kde=True, stat='percent', alpha=0.00, edgecolor='k', lw=0.0)
     ax1.get_legend().remove()  # remove legend
 
     p1,p2 = int(percentiles[0]*100), int(percentiles[1]*100)  # change percentiles format for plotting
@@ -152,7 +152,8 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     # ax1.add_patch(rect)
 
     # plt.clf()
-    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y, max_value = MLE(x1, sns_output, 3, color='b', percentiles=percentiles)
+    ### EF1
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y, max_value = MLE(x1, sns_output, 1, color='b', percentiles=percentiles)
     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
     mean1 = plt.axvline(x=np.mean(x1), color='b', ls=(0, (30, 100)), lw=1)
     ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="b", alpha=0.2)
@@ -163,33 +164,35 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     ypos = (np.max(y)-np.min(y))/2
     plt.text(Global_Max_MLE+Global_Max_MLE*0.02, ypos, f"Prob.: {str(count1)} %", color='b', fontsize=13, backgroundcolor='w')
 
-    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y, max_value = MLE(x2, sns_output,2, color='orange', percentiles=percentiles)
-    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
-    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="orange", alpha=0.2)    
-    texto = f"Efectividad=2  ---  Máx Probab.: {round(max_value, 1)}% - '{feature}'={Global_Max_MLE}\
-        \nPercentiles:  {p1}{'%'} - {p2}{'%'}:     {round(Q1, 2)} - {round(Q2, 2)}"   
-    plt.text(0.59, 0.89, texto, color='orange', fontsize=13, transform=plt.gca().transAxes, backgroundcolor='w')
-    ### add probability
-    ypos = (np.max(y)-np.min(y))/2
-    plt.text(Global_Max_MLE+Global_Max_MLE*0.02, ypos, f"Prob.: {str(count2)} %", color='orange', fontsize=13, backgroundcolor='w')
-    ### calculate percentiles of Ef=1 for all the others
-    qx2 = stats.percentileofscore(x1, Q1), stats.percentileofscore(x1, Q2)
-    prob_ace_2 = round(qx2[1]-qx2[0], 2)
+    ### EF2
+    # Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y, max_value = MLE(x2, sns_output,2, color='orange', percentiles=percentiles)
+    # Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+    # ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="orange", alpha=0.2)    
+    # texto = f"Efectividad=2  ---  Máx Probab.: {round(max_value, 1)}% - '{feature}'={Global_Max_MLE}\
+    #     \nPercentiles:  {p1}{'%'} - {p2}{'%'}:     {round(Q1, 2)} - {round(Q2, 2)}"   
+    # plt.text(0.59, 0.89, texto, color='orange', fontsize=13, transform=plt.gca().transAxes, backgroundcolor='w')
+    # ### add probability
+    # ypos = (np.max(y)-np.min(y))/2
+    # plt.text(Global_Max_MLE+Global_Max_MLE*0.02, ypos, f"Prob.: {str(count2)} %", color='orange', fontsize=13, backgroundcolor='w')
+    # ### calculate percentiles of Ef=1 for all the others
+    # qx2 = stats.percentileofscore(x1, Q1), stats.percentileofscore(x1, Q2)
+    # prob_ace_2 = round(qx2[1]-qx2[0], 2)
 
-    Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y, max_value = MLE(x3, sns_output,1, color='g', percentiles=percentiles)
-    Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
-    ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="g", alpha=0.2)
-    texto = f"Efectividad=3  ---  Máx Probab.: {round(max_value, 1)}% - '{feature}'={Global_Max_MLE}\
-        \nPercentiles:  {p1}{'%'} - {p2}{'%'}:     {round(Q1, 2)} - {round(Q2, 2)}"
-    plt.text(0.59, 0.83, texto, color='g', fontsize=13, transform=plt.gca().transAxes, backgroundcolor='w')
-    ### add probability
-    ypos = (np.max(y)-np.min(y))/2
-    plt.text(Global_Max_MLE+Global_Max_MLE*0.02, ypos, f"Prob.: {str(count3)} %", color='g', fontsize=13, backgroundcolor='w')
-    ### calculate percentiles of Ef=1 for all the others
-    qx3 = stats.percentileofscore(x1, Q1), stats.percentileofscore(x1, Q2)
-    prob_ace_3 = round(qx3[1]-qx3[0], 2)
+    ### EF3
+    # Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y, max_value = MLE(x3, sns_output,1, color='g', percentiles=percentiles)
+    # Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
+    # ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="g", alpha=0.2)
+    # texto = f"Efectividad=3  ---  Máx Probab.: {round(max_value, 1)}% - '{feature}'={Global_Max_MLE}\
+    #     \nPercentiles:  {p1}{'%'} - {p2}{'%'}:     {round(Q1, 2)} - {round(Q2, 2)}"
+    # plt.text(0.59, 0.83, texto, color='g', fontsize=13, transform=plt.gca().transAxes, backgroundcolor='w')
+    # ### add probability
+    # ypos = (np.max(y)-np.min(y))/2
+    # plt.text(Global_Max_MLE+Global_Max_MLE*0.02, ypos, f"Prob.: {str(count3)} %", color='g', fontsize=13, backgroundcolor='w')
+    # ### calculate percentiles of Ef=1 for all the others
+    # qx3 = stats.percentileofscore(x1, Q1), stats.percentileofscore(x1, Q2)
+    # prob_ace_3 = round(qx3[1]-qx3[0], 2)
 
-
+    ### EF4
     Global_Max_MLE, local_MLEs, lmax, q1, q2, x, y, max_value = MLE(x4, sns_output,0, color='r', percentiles=percentiles)
     Q1, Q2 = float(q1._xy[0][0]), float(q2._xy[0][0])  # get quantiles from plt object
     ax1.fill_between(x[(x >= Q1) & (x <= Q2)],y[(x >= Q1) & (x <= Q2)], color="r", alpha=0.2)
@@ -204,7 +207,8 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     prob_ace_4 = round(qx4[1]-qx4[0], 2)
     
     print(f"Para los seleccionados percentiles de Eficiencia 1, estos son los valores de sus poblaciones, para cada subset: ")
-    print(f"prob_Ef._1: {p2-p1}%,   prob_Ef._2: {prob_ace_2}%,   Ef._3: {prob_ace_3}%,   Ef_4: {prob_ace_4}%")
+    # print(f"prob_Ef._1: {p2-p1}%,   prob_Ef._2: {prob_ace_2}%,   Ef._3: {prob_ace_3}%,   Ef_4: {prob_ace_4}%")
+    print(f"prob_Ef._1: {p2-p1}%,   Ef_4: {prob_ace_4}%")
     print(f"Interesa que minimice las densidades de población de cada subset")
 
     plt.xlabel(feature, fontsize=14)
@@ -233,8 +237,50 @@ def plot_hist(df, feature='&(grados)', fill_area=True, percentiles=(0.1,0.9), fi
     from other article -->  show chart with statistics -->  mean, SD, quantiles 0.025 - 0.975  (95%)
     We also add: median, mode, MaxLikelihook
     """
+    ### new probabs
+    # NOTE: WE ADD 200 BINS, CAUSE OF THIS: 
+    #     "percent: normalize such that bar heights sum to 100"
+    #     https://seaborn.pydata.org/generated/seaborn.histplot.html
+    plt.clf()
+    sns_output = sns.histplot((df1), kde=True, stat='percent', edgecolor='k', lw=0.0, bins=200)
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x1, y1, max_value = MLE(x4, sns_output,0, color='r', percentiles=percentiles)
+    area_under_curve(x1,y1)
+    print(f"number of points: {len(x1)}, sum y (area?): {sum(y1)}")
+    # plt.show()
+    
+    plt.clf()
+    sns_output = sns.histplot((df4), kde=True, stat='percent', edgecolor='k', lw=0.0, bins=200)
+    Global_Max_MLE, local_MLEs, lmax, q1, q2, x4, y4, max_value = MLE(x4, sns_output,0, color='r', percentiles=percentiles)
+    area_under_curve(x4,y4)
+    print(f"number of points: {len(x4)}, sum y (area?): {sum(y4)}")
+    # plt.show()
+    
+    cum1, cum4 = 0, 0 # acumulada
+    diff_prob = []
+    for xx1, yy1, xx4, yy4 in zip(x1,y1, x4, y4):
+        cum1 += yy1
+        cum4 += yy4
+        dif = cum1-cum4
+        print(cum1, cum4, '    dif: ', round(dif,2), '    x: ', round(xx1, 2))
+
+    plt.clf()
+    sns_output = sns.histplot((df1), kde=True, stat='percent', edgecolor='k', lw=0.0, bins=200)        
+    sns_output = sns.histplot((df4), kde=True, stat='percent', edgecolor='k', lw=0.0, bins=200)
+    plt.show()
+    
+    # TODO: create my own histogram? this one doesn't seem to calculate the area right (not a priority for now, though!)
+    #     go forward and calculate probability ratio for each bin
+    # TODO: MAIN thing to do now is to calculate the values! con lo que impromimos es suficiente para entender que funciona,
+    # falta ahora calcularlo!!!
+    
     return X_Stacked # , sns_output
 
+
+def area_under_curve(x,y):
+    from sklearn.metrics import auc
+    area = auc(x,y)
+    print('\ncomputed AUC using sklearn.metrics.auc: {}'.format(area))
+    return area
 
 
 def get_stats_table(df, features='all', percentiles=(0.1,0.9), save_dir=False):
@@ -350,12 +396,12 @@ if __name__=='__main__':
     
     #################################################################################################################
     ### MEN
-    # DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
-    # DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
+    DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_deuce.csv'
+    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/DATAJAVI_V5_ad.csv'
 
     ### WOMEN
-    DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/women_deuce_filtered.csv'
-    DS_advance = '/home/javier/mis_proyectos/calculos_Fer/women_advance_filtered.csv'
+    # DS_deuce = '/home/javier/mis_proyectos/calculos_Fer/women_deuce_filtered.csv'
+    # DS_advance = '/home/javier/mis_proyectos/calculos_Fer/women_advance_filtered.csv'
     #################################################################################################################
     
     df_deuce   = pd.read_csv(DS_deuce)
@@ -367,8 +413,11 @@ if __name__=='__main__':
     #########
 
 
-
-    feature = 'dLinea'   # 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
+    feature = 'Serve angle (deg)'
+    # Women: 'ANG. IN'  '&(grados)' 'TIME' 'dLinea', 'V(km/h)'
+    # Men: 'Efectividad', 'Direction (W,B,T)', 'Speed (Km h-1)', 'Position (m)',
+    #    'ZA', 'Net clearance (m)', 'TIME', 'Loss of speed (km h-1)',
+    #    'Serve angle (deg)', 'Vertical projection angle (deg)', 'dL (m)'
     save_dir = f"/home/javier/TENNIS_FINAL_RESULTS/{feature}_BOTH"
     
     plot_hist(df, feature=feature, fill_area=False, percentiles=(0.05,0.95), figsize=(15,10), 
@@ -377,13 +426,10 @@ if __name__=='__main__':
     # stats_df, stats_df_1, stats_df_2, stats_df_3, stats_df_4 = get_stats_table(df, features='all', 
     #         percentiles=(0.025,0.975), save_dir=save_dir)
 
-    print('\nWE HAVE DONE IT FOR ALL DS. DO THE SAME FOR EACH SUBSET!!!!!!!!!!!!!!!!!!!!! df1, df2, df3, df4')
-    print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms. DONE!")   
-
-
-    print("\nDO IT FOR DEUCE AND AD.?  SEE LINES 10 & 11 --> train_v5_fastai.py")   
-
-    print("~/pyenvs/tennis/lib/python3.8/site-packages/fastinference/tabular/shap/interp.py")
+    # print('\nWE HAVE DONE IT FOR ALL DS. DO THE SAME FOR EACH SUBSET!!!!!!!!!!!!!!!!!!!!! df1, df2, df3, df4')
+    # print("other TODOes: show all statistics in plots as well, show mean and other stats in the histograms. DONE!")   
+    # print("\nDO IT FOR DEUCE AND AD.?  SEE LINES 10 & 11 --> train_v5_fastai.py")   
+    # print("~/pyenvs/tennis/lib/python3.8/site-packages/fastinference/tabular/shap/interp.py")
 
     """
     Rafa says:
